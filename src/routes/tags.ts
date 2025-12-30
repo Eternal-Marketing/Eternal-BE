@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { TagController } from '../controllers/tagController';
+import * as tagController from '../controllers/tagController';
 import { authenticate } from '../middleware/auth';
 
 const router = Router();
-const tagController = new TagController();
 
 /**
  * @swagger
@@ -70,7 +69,7 @@ router.get('/:id', tagController.getTagById);
  *       201:
  *         description: 태그 생성 성공
  */
-router.post('/', tagController.createTag);
+router.post('/', authenticate, tagController.createTag);
 
 /**
  * @swagger
@@ -90,7 +89,7 @@ router.post('/', tagController.createTag);
  *       204:
  *         description: 삭제 성공
  */
-router.delete('/:id', tagController.deleteTag);
+router.delete('/:id', authenticate, tagController.deleteTag);
 
 export { router as tagRouter };
 

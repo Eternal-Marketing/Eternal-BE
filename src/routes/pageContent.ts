@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { PageContentController } from '../controllers/pageContentController';
+import * as pageContentController from '../controllers/pageContentController';
 import { authenticate } from '../middleware/auth';
 
 const router = Router();
-const pageContentController = new PageContentController();
 
 /**
  * @swagger
@@ -75,7 +74,7 @@ router.get('/:key', pageContentController.getContentByKey);
  *       200:
  *         description: 수정 성공
  */
-router.put('/:key', pageContentController.updateContent);
+router.put('/:key', authenticate, pageContentController.updateContent);
 
 /**
  * @swagger
@@ -113,7 +112,7 @@ router.put('/:key', pageContentController.updateContent);
  *       200:
  *         description: 성공
  */
-router.post('/', pageContentController.upsertContent);
+router.post('/', authenticate, pageContentController.upsertContent);
 
 export { router as pageContentRouter };
 

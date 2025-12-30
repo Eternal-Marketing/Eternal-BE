@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { ColumnController } from '../controllers/columnController';
+import * as columnController from '../controllers/columnController';
 import { authenticate } from '../middleware/auth';
 
 const router = Router();
-const columnController = new ColumnController();
 
 /**
  * @swagger
@@ -189,7 +188,7 @@ router.get('/slug/:slug', columnController.getColumnBySlug);
  *       401:
  *         description: 인증 필요
  */
-router.post('/', columnController.createColumn);
+router.post('/', authenticate, columnController.createColumn);
 
 /**
  * @swagger
@@ -234,7 +233,7 @@ router.post('/', columnController.createColumn);
  *       404:
  *         description: 칼럼을 찾을 수 없음
  */
-router.put('/:id', columnController.updateColumn);
+router.put('/:id', authenticate, columnController.updateColumn);
 
 /**
  * @swagger
@@ -257,7 +256,7 @@ router.put('/:id', columnController.updateColumn);
  *       404:
  *         description: 칼럼을 찾을 수 없음
  */
-router.delete('/:id', columnController.deleteColumn);
+router.delete('/:id', authenticate, columnController.deleteColumn);
 
 /**
  * @swagger
@@ -290,7 +289,7 @@ router.delete('/:id', columnController.deleteColumn);
  *       200:
  *         description: 상태 변경 성공
  */
-router.patch('/:id/status', columnController.updateStatus);
+router.patch('/:id/status', authenticate, columnController.updateStatus);
 
 export { router as columnRouter };
 

@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { CategoryController } from '../controllers/categoryController';
+import * as categoryController from '../controllers/categoryController';
 import { authenticate } from '../middleware/auth';
 
 const router = Router();
-const categoryController = new CategoryController();
 
 /**
  * @swagger
@@ -95,7 +94,7 @@ router.get('/:id', categoryController.getCategoryById);
  *       401:
  *         description: 인증 필요
  */
-router.post('/', categoryController.createCategory);
+router.post('/', authenticate, categoryController.createCategory);
 
 /**
  * @swagger
@@ -129,7 +128,7 @@ router.post('/', categoryController.createCategory);
  *       200:
  *         description: 수정 성공
  */
-router.put('/:id', categoryController.updateCategory);
+router.put('/:id', authenticate, categoryController.updateCategory);
 
 /**
  * @swagger
@@ -149,7 +148,7 @@ router.put('/:id', categoryController.updateCategory);
  *       204:
  *         description: 삭제 성공
  */
-router.delete('/:id', categoryController.deleteCategory);
+router.delete('/:id', authenticate, categoryController.deleteCategory);
 
 export { router as categoryRouter };
 
