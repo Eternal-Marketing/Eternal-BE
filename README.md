@@ -7,8 +7,8 @@ Express + TypeScript + Prisma 기반 Node.js 백엔드 애플리케이션
 - **Runtime**: Node.js (LTS >=18)
 - **Framework**: Express.js
 - **Language**: TypeScript
-- **ORM**: Prisma
-- **Database**: PostgreSQL
+- **ORM**: Sequelize
+- **Database**: MySQL
 - **Code Quality**: ESLint + Prettier
 
 ## 📁 Project Structure
@@ -61,20 +61,23 @@ BE/
    ```
    
    Edit `.env` and configure:
-   - `DATABASE_URL`: Your PostgreSQL connection string
+   - `DB_NAME`: MySQL database name
+   - `DB_USER`: MySQL username
+   - `DB_PASSWORD`: MySQL password
+   - `DB_HOST`: MySQL host (default: localhost)
+   - `DB_PORT`: MySQL port (default: 3306)
    - `PORT`: Server port (default: 3000)
    - `NODE_ENV`: Environment (development/production)
+   - `JWT_SECRET`: JWT secret key
+   - `JWT_REFRESH_SECRET`: JWT refresh secret key
 
-4. **Setup Prisma**
+4. **Setup Database**
    ```bash
-   # Generate Prisma Client
-   npm run prisma:generate
-   
    # Run migrations (creates database tables)
-   npm run prisma:migrate
+   npm run db:migrate
    
    # Seed database with initial data (optional)
-   npm run prisma:seed
+   npm run db:seed
    ```
    
    기본 어드민 계정:
@@ -103,11 +106,13 @@ BE/
 - `npm run format` - Format code with Prettier
 - `npm run format:check` - Check code formatting
 
-### Database (Prisma)
-- `npm run prisma:generate` - Generate Prisma Client
-- `npm run prisma:migrate` - Create and apply migrations (dev)
-- `npm run prisma:migrate:deploy` - Apply migrations (production)
-- `npm run prisma:studio` - Open Prisma Studio (database GUI)
+### Database (Sequelize)
+- `npm run db:migrate` - Run pending migrations
+- `npm run db:migrate:undo` - Undo last migration
+- `npm run db:migrate:undo:all` - Undo all migrations
+- `npm run db:seed` - Run seeders
+- `npm run db:seed:undo` - Undo seeders
+- `npm run db:reset` - Reset database (undo all, migrate, seed)
 
 ## 📚 API Documentation
 
@@ -165,14 +170,18 @@ This project follows a layered architecture:
 ### TypeScript
 Configuration in `tsconfig.json` - strict mode enabled, path aliases configured (`@/*`)
 
-### Prisma
-Database schema defined in `prisma/schema.prisma`. Modify and run migrations to update.
+### Sequelize
+Database schema defined in `src/models/`. Run migrations to update database structure.
 
 ### Environment Variables
 Create a `.env` file in the root directory:
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/eternal_db?schema=public"
+DB_NAME=eternal_db
+DB_USER=root
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=3306
 PORT=3000
 NODE_ENV=development
 JWT_SECRET=your-secret-key-change-in-production
@@ -182,11 +191,15 @@ BASE_URL=http://localhost:3000
 ```
 
 Required variables:
-- `DATABASE_URL` - PostgreSQL connection string
+- `DB_NAME` - MySQL database name
+- `DB_USER` - MySQL username
+- `DB_PASSWORD` - MySQL password
 - `JWT_SECRET` - JWT 토큰 비밀키 (프로덕션에서는 반드시 변경!)
 - `JWT_REFRESH_SECRET` - JWT 리프레시 토큰 비밀키
 
 Optional variables:
+- `DB_HOST` - MySQL host (default: localhost)
+- `DB_PORT` - MySQL port (default: 3306)
 - `PORT` - Server port (default: 3000)
 - `NODE_ENV` - Environment (development/production)
 - `UPLOAD_DIR` - 파일 업로드 디렉토리 (default: uploads)
