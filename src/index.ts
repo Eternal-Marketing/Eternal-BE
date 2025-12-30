@@ -1,6 +1,5 @@
 import express, { Express } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
@@ -12,13 +11,13 @@ import { categoryRouter } from './routes/categories';
 import { tagRouter } from './routes/tags';
 import { pageContentRouter } from './routes/pageContent';
 import { mediaRouter } from './routes/media';
-
-// Load environment variables
-dotenv.config();
+import { connectDB } from './db';
+import './models'; // Initialize models and associations
+import ENV from './common/constants/ENV';
 
 const app: Express = express();
-const PORT = process.env.PORT || 3000;
-const UPLOAD_DIR = process.env.UPLOAD_DIR || 'uploads';
+const PORT = ENV.Port;
+const UPLOAD_DIR = ENV.UploadDir;
 
 // Middleware
 app.use(cors());
@@ -65,12 +64,23 @@ app.get('/', (req, res) => {
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
-  console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`📁 Upload directory: ${UPLOAD_DIR}`);
-  console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
-});
+(async () => {
+  try {
+    // Connect to database
+    await connectDB();
+
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on http://localhost:${PORT}`);
+      console.log(`📝 Environment: ${ENV.NodeEnv}`);
+      console.log(`📁 Upload directory: ${UPLOAD_DIR}`);
+      console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+})();
 
 export default app;
 
