@@ -1,23 +1,20 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { HealthService } from '../services/healthService';
+import HttpStatusCodes from '../common/constants/HttpStatusCodes';
 
-export class HealthController {
-  private healthService: HealthService;
-
-  constructor() {
-    this.healthService = new HealthService();
+/**
+ * 헬스 체크
+ * GET /health
+ */
+export async function check(_req: Request, res: Response, _next: NextFunction) {
+  try {
+    const healthService = new HealthService();
+    const healthStatus = await healthService.getHealthStatus();
+    res.status(HttpStatusCodes.OK).json(healthStatus);
+  } catch (error) {
+    res.status(HttpStatusCodes.SERVICE_UNAVAILABLE).json({
+      status: 'error',
+      message: 'Service unhealthy',
+    });
   }
-
-  check = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const healthStatus = await this.healthService.getHealthStatus();
-      res.status(200).json(healthStatus);
-    } catch (error) {
-      res.status(503).json({
-        status: 'error',
-        message: 'Service unhealthy',
-      });
-    }
-  };
 }
-
