@@ -87,6 +87,7 @@ BE/
    ```
 
    Server will start at `http://localhost:3000`
+   - API Documentation: `http://localhost:3000/api-docs`
 
 ## 📜 Available Scripts
 
@@ -107,6 +108,12 @@ BE/
 - `npm run prisma:migrate` - Create and apply migrations (dev)
 - `npm run prisma:migrate:deploy` - Apply migrations (production)
 - `npm run prisma:studio` - Open Prisma Studio (database GUI)
+
+## 📚 API Documentation
+
+**Swagger UI**: 서버 실행 후 `http://localhost:3000/api-docs` 에서 API 문서를 확인할 수 있습니다.
+
+모든 API 엔드포인트는 Swagger를 통해 자동 문서화되어 있으며, 직접 테스트할 수 있습니다.
 
 ## 🌐 API Endpoints
 
@@ -231,6 +238,9 @@ npm start
 ISC
 
 ## 📚 문서
+
+### 📅 개발 일지 (기획자용)
+- **[DEV_LOG.md](./docs/DEV_LOG.md)** - 백엔드 작업 내용을 기획자 관점에서 쉽게 이해할 수 있도록 기록한 개발 일지 (날짜별, 단계별 설명)
 
 ### 코드 아키텍처 가이드
 - **[CODE_ARCHITECTURE.md](./docs/CODE_ARCHITECTURE.md)** - 프로젝트의 코드 설계 원칙, 레이어 구조, 각 컴포넌트의 역할과 책임에 대한 상세 가이드
