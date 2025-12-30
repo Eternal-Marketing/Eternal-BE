@@ -1,22 +1,13 @@
-import { PrismaClient } from '@prisma/client';
-import { CategoryRepository } from '../repositories/categoryRepository';
+import { CategoryRepo } from '../repositories/categoryRepository';
 import { AppError } from '../middleware/errorHandler';
 
-const prisma = new PrismaClient();
-
 export class CategoryService {
-  private categoryRepository: CategoryRepository;
-
-  constructor() {
-    this.categoryRepository = new CategoryRepository(prisma);
-  }
-
   async getCategories(includeInactive = false) {
-    return await this.categoryRepository.findMany(includeInactive);
+    return await CategoryRepo.findMany(includeInactive);
   }
 
   async getCategoryById(id: string) {
-    const category = await this.categoryRepository.findById(id);
+    const category = await CategoryRepo.findById(id);
 
     if (!category) {
       const error = new Error('Category not found') as AppError;
@@ -36,7 +27,7 @@ export class CategoryService {
     order?: number;
   }) {
     // Check if slug already exists
-    const existing = await this.categoryRepository.findBySlug(data.slug);
+    const existing = await CategoryRepo.findBySlug(data.slug);
     if (existing) {
       const error = new Error('Slug already exists') as AppError;
       error.statusCode = 409;
@@ -44,7 +35,7 @@ export class CategoryService {
       throw error;
     }
 
-    return await this.categoryRepository.create(data);
+    return await CategoryRepo.create(data);
   }
 
   async updateCategory(
@@ -58,7 +49,7 @@ export class CategoryService {
       isActive?: boolean;
     }
   ) {
-    const category = await this.categoryRepository.findById(id);
+    const category = await CategoryRepo.findById(id);
 
     if (!category) {
       const error = new Error('Category not found') as AppError;
@@ -69,7 +60,7 @@ export class CategoryService {
 
     // If slug is being updated, check if it's available
     if (data.slug && data.slug !== category.slug) {
-      const slugExists = await this.categoryRepository.findBySlug(data.slug);
+      const slugExists = await CategoryRepo.findBySlug(data.slug);
       if (slugExists) {
         const error = new Error('Slug already exists') as AppError;
         error.statusCode = 409;
@@ -78,11 +69,11 @@ export class CategoryService {
       }
     }
 
-    return await this.categoryRepository.update(id, data);
+    return await CategoryRepo.update(id, data);
   }
 
   async deleteCategory(id: string) {
-    const category = await this.categoryRepository.findById(id);
+    const category = await CategoryRepo.findById(id);
 
     if (!category) {
       const error = new Error('Category not found') as AppError;
@@ -91,7 +82,6 @@ export class CategoryService {
       throw error;
     }
 
-    await this.categoryRepository.delete(id);
+    await CategoryRepo.delete(id);
   }
 }
-

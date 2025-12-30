@@ -1,22 +1,14 @@
-import { PrismaClient, ContentType } from '@prisma/client';
-import { PageContentRepository } from '../repositories/pageContentRepository';
+import { PageContentRepo } from '../repositories/pageContentRepository';
+import { ContentType } from '../models/PageContent';
 import { AppError } from '../middleware/errorHandler';
 
-const prisma = new PrismaClient();
-
 export class PageContentService {
-  private pageContentRepository: PageContentRepository;
-
-  constructor() {
-    this.pageContentRepository = new PageContentRepository(prisma);
-  }
-
   async getAllContents() {
-    return await this.pageContentRepository.findMany();
+    return await PageContentRepo.findMany();
   }
 
   async getContentByKey(key: string) {
-    const content = await this.pageContentRepository.findByKey(key);
+    const content = await PageContentRepo.findByKey(key);
 
     if (!content) {
       const error = new Error('Page content not found') as AppError;
@@ -37,7 +29,7 @@ export class PageContentService {
       isActive?: boolean;
     }
   ) {
-    const existing = await this.pageContentRepository.findByKey(key);
+    const existing = await PageContentRepo.findByKey(key);
 
     if (!existing) {
       const error = new Error('Page content not found') as AppError;
@@ -46,7 +38,7 @@ export class PageContentService {
       throw error;
     }
 
-    return await this.pageContentRepository.update(key, data);
+    return await PageContentRepo.update(key, data);
   }
 
   async upsertContent(data: {
@@ -56,7 +48,6 @@ export class PageContentService {
     type: ContentType;
     isActive?: boolean;
   }) {
-    return await this.pageContentRepository.upsert(data);
+    return await PageContentRepo.upsert(data);
   }
 }
-

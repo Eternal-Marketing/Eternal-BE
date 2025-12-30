@@ -1,22 +1,13 @@
-import { PrismaClient } from '@prisma/client';
-import { TagRepository } from '../repositories/tagRepository';
+import { TagRepo } from '../repositories/tagRepository';
 import { AppError } from '../middleware/errorHandler';
 
-const prisma = new PrismaClient();
-
 export class TagService {
-  private tagRepository: TagRepository;
-
-  constructor() {
-    this.tagRepository = new TagRepository(prisma);
-  }
-
   async getTags(includeCount = false) {
-    return await this.tagRepository.findMany(includeCount);
+    return await TagRepo.findMany(includeCount);
   }
 
   async getTagById(id: string) {
-    const tag = await this.tagRepository.findById(id);
+    const tag = await TagRepo.findById(id);
 
     if (!tag) {
       const error = new Error('Tag not found') as AppError;
@@ -30,7 +21,7 @@ export class TagService {
 
   async createTag(data: { name: string; slug: string }) {
     // Check if name or slug already exists
-    const existingByName = await this.tagRepository.findByName(data.name);
+    const existingByName = await TagRepo.findByName(data.name);
     if (existingByName) {
       const error = new Error('Tag name already exists') as AppError;
       error.statusCode = 409;
@@ -38,7 +29,7 @@ export class TagService {
       throw error;
     }
 
-    const existingBySlug = await this.tagRepository.findBySlug(data.slug);
+    const existingBySlug = await TagRepo.findBySlug(data.slug);
     if (existingBySlug) {
       const error = new Error('Tag slug already exists') as AppError;
       error.statusCode = 409;
@@ -46,11 +37,11 @@ export class TagService {
       throw error;
     }
 
-    return await this.tagRepository.create(data);
+    return await TagRepo.create(data);
   }
 
   async deleteTag(id: string) {
-    const tag = await this.tagRepository.findById(id);
+    const tag = await TagRepo.findById(id);
 
     if (!tag) {
       const error = new Error('Tag not found') as AppError;
@@ -59,11 +50,10 @@ export class TagService {
       throw error;
     }
 
-    await this.tagRepository.delete(id);
+    await TagRepo.delete(id);
   }
 
   async findOrCreateTag(name: string, slug: string) {
-    return await this.tagRepository.findOrCreate(name, slug);
+    return await TagRepo.findOrCreate(name, slug);
   }
 }
-

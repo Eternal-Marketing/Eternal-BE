@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PageContentService } from '../services/pageContentService';
-import { ContentType } from '@prisma/client';
+import { ContentType } from '../models/PageContent';
 
 export class PageContentController {
   private pageContentService: PageContentService;

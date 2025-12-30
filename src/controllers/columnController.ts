@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ColumnService } from '../services/columnService';
 import { AuthRequest } from '../middleware/auth';
-import { ColumnStatus } from '@prisma/client';
+import { ColumnStatus } from '../models/Column';
 
 export class ColumnController {
   private columnService: ColumnService;
@@ -259,4 +259,3 @@ export class ColumnController {
     }
   };
 }
-

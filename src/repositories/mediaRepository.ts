@@ -1,75 +1,76 @@
-import { PrismaClient, Media, Prisma } from '@prisma/client';
+import MediaModel, { MediaCreationAttributes } from '../models/Media';
 
-export class MediaRepository {
-  constructor(private prisma: PrismaClient) {}
-
+export const MediaRepo = {
+  /**
+   * 미디어 목록 조회
+   */
   async findMany(options?: {
     uploadedBy?: string;
     page?: number;
     limit?: number;
-  }): Promise<{ media: Media[]; total: number }> {
+  }) {
     const { uploadedBy, page = 1, limit = 20 } = options || {};
     const skip = (page - 1) * limit;
 
-    const where: Prisma.MediaWhereInput = {};
+    const where: any = {};
     if (uploadedBy) {
       where.uploadedBy = uploadedBy;
     }
 
     const [media, total] = await Promise.all([
-      this.prisma.media.findMany({
+      MediaModel.findAll({
         where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          uploader: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
+        offset: skip,
+        limit,
+        order: [['createdAt', 'DESC']],
+        include: [
+          {
+            association: 'uploader',
+            attributes: ['id', 'name', 'email'],
+            required: true,
           },
-        },
+        ],
       }),
-      this.prisma.media.count({ where }),
+      MediaModel.count({ where }),
     ]);
 
-    return { media, total };
-  }
+    return {
+      media: media.map((m) => m.get()),
+      total,
+    };
+  },
 
-  async findById(id: string): Promise<Media | null> {
-    return await this.prisma.media.findUnique({
-      where: { id },
-      include: {
-        uploader: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+  /**
+   * ID로 미디어 조회
+   */
+  async findById(id: string) {
+    const media = await MediaModel.findByPk(id, {
+      include: [
+        {
+          association: 'uploader',
+          attributes: ['id', 'name', 'email'],
+          required: true,
         },
-      },
+      ],
     });
-  }
+    return media ? media.get() : null;
+  },
 
-  async create(data: {
-    originalName: string;
-    fileName: string;
-    mimeType: string;
-    size: number;
-    url: string;
-    uploadedBy: string;
-  }): Promise<Media> {
-    return await this.prisma.media.create({
-      data,
-    });
-  }
+  /**
+   * 미디어 생성
+   */
+  async create(data: MediaCreationAttributes) {
+    const media = await MediaModel.create(data);
+    return media.get();
+  },
 
-  async delete(id: string): Promise<void> {
-    await this.prisma.media.delete({
-      where: { id },
-    });
-  }
-}
-
+  /**
+   * 미디어 삭제
+   */
+  async delete(id: string) {
+    const deleted = await MediaModel.destroy({ where: { id } });
+    if (deleted === 0) {
+      throw new Error('Media not found');
+    }
+  },
+};
