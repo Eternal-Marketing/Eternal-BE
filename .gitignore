@@ -48,3 +48,9 @@ uploads/
 *.gif
 *.webp
 
+# Prisma build artifacts (if any remain)
+prisma/seed.js
+prisma/seed.d.ts
+prisma/seed.js.map
+prisma/seed.d.ts.map
+
