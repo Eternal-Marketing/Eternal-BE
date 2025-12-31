@@ -1,32 +1,41 @@
-import { PrismaClient, PageContent, ContentType, Prisma } from '@prisma/client';
+import PageContentModel, {
+  PageContentCreationAttributes,
+  ContentType,
+} from '../models/PageContent';
 
-export class PageContentRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  async findMany(): Promise<PageContent[]> {
-    return await this.prisma.pageContent.findMany({
+export const PageContentRepo = {
+  /**
+   * 페이지 컨텐츠 목록 조회
+   */
+  async findMany() {
+    const contents = await PageContentModel.findAll({
       where: { isActive: true },
-      orderBy: { key: 'asc' },
+      order: [['key', 'ASC']],
     });
-  }
+    return contents.map((content) => content.get());
+  },
 
-  async findByKey(key: string): Promise<PageContent | null> {
-    return await this.prisma.pageContent.findUnique({
+  /**
+   * Key로 페이지 컨텐츠 조회
+   */
+  async findByKey(key: string) {
+    const content = await PageContentModel.findOne({
       where: { key },
     });
-  }
+    return content ? content.get() : null;
+  },
 
-  async create(data: {
-    key: string;
-    title?: string;
-    content: string;
-    type: ContentType;
-  }): Promise<PageContent> {
-    return await this.prisma.pageContent.create({
-      data,
-    });
-  }
+  /**
+   * 페이지 컨텐츠 생성
+   */
+  async create(data: PageContentCreationAttributes) {
+    const content = await PageContentModel.create(data);
+    return content.get();
+  },
 
+  /**
+   * 페이지 컨텐츠 수정
+   */
   async update(
     key: string,
     data: {
@@ -35,37 +44,27 @@ export class PageContentRepository {
       type?: ContentType;
       isActive?: boolean;
     }
-  ): Promise<PageContent | null> {
-    try {
-      return await this.prisma.pageContent.update({
-        where: { key },
-        data,
-      });
-    } catch (error) {
-      if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
-        return null;
-      }
-      throw error;
-    }
-  }
-
-  async upsert(data: {
-    key: string;
-    title?: string;
-    content: string;
-    type: ContentType;
-    isActive?: boolean;
-  }): Promise<PageContent> {
-    return await this.prisma.pageContent.upsert({
-      where: { key: data.key },
-      update: {
-        title: data.title,
-        content: data.content,
-        type: data.type,
-        isActive: data.isActive,
-      },
-      create: data,
+  ) {
+    const [updated] = await PageContentModel.update(data, {
+      where: { key },
+      returning: true,
     });
-  }
-}
 
+    if (updated === 0) {
+      return null;
+    }
+
+    const content = await PageContentModel.findOne({ where: { key } });
+    return content ? content.get() : null;
+  },
+
+  /**
+   * 페이지 컨텐츠 생성 또는 수정
+   */
+  async upsert(data: PageContentCreationAttributes) {
+    const [content] = await PageContentModel.upsert(data, {
+      returning: true,
+    });
+    return content.get();
+  },
+};

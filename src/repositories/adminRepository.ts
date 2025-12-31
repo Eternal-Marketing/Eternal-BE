@@ -1,46 +1,44 @@
-import { PrismaClient, Admin, Prisma } from '@prisma/client';
+import AdminModel, { AdminCreationAttributes } from '../models/Admin';
+import { AdminRole } from '../models/Admin';
 
-export class AdminRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  async findByEmail(email: string): Promise<Admin | null> {
-    return await this.prisma.admin.findUnique({
+export const AdminRepo = {
+  /**
+   * 이메일로 어드민 조회
+   */
+  async findByEmail(email: string) {
+    const admin = await AdminModel.findOne({
       where: { email },
     });
-  }
+    return admin ? admin.get() : null;
+  },
 
-  async findById(id: string): Promise<Admin | null> {
-    return await this.prisma.admin.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        isActive: true,
-        lastLoginAt: true,
-        createdAt: true,
-        updatedAt: true,
+  /**
+   * ID로 어드민 조회 (비밀번호 제외)
+   */
+  async findById(id: string) {
+    const admin = await AdminModel.findByPk(id, {
+      attributes: {
+        exclude: ['password'],
       },
     });
-  }
+    return admin ? admin.get() : null;
+  },
 
-  async create(data: {
-    email: string;
-    password: string;
-    name: string;
-    role?: Prisma.AdminRole;
-  }): Promise<Admin> {
-    return await this.prisma.admin.create({
-      data,
-    });
-  }
+  /**
+   * 어드민 생성
+   */
+  async create(data: AdminCreationAttributes) {
+    const admin = await AdminModel.create(data);
+    return admin.get();
+  },
 
-  async updateLastLogin(id: string): Promise<void> {
-    await this.prisma.admin.update({
-      where: { id },
-      data: { lastLoginAt: new Date() },
-    });
-  }
-}
-
+  /**
+   * 마지막 로그인 시간 업데이트
+   */
+  async updateLastLogin(id: string) {
+    await AdminModel.update(
+      { lastLoginAt: new Date() },
+      { where: { id } }
+    );
+  },
+};

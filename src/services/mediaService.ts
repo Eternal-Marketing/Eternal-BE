@@ -1,26 +1,17 @@
-import { PrismaClient } from '@prisma/client';
-import { MediaRepository } from '../repositories/mediaRepository';
+import { MediaRepo } from '../repositories/mediaRepository';
 import { AppError } from '../middleware/errorHandler';
 
-const prisma = new PrismaClient();
-
 export class MediaService {
-  private mediaRepository: MediaRepository;
-
-  constructor() {
-    this.mediaRepository = new MediaRepository(prisma);
-  }
-
   async getMediaList(options?: {
     uploadedBy?: string;
     page?: number;
     limit?: number;
   }) {
-    return await this.mediaRepository.findMany(options);
+    return await MediaRepo.findMany(options);
   }
 
   async getMediaById(id: string) {
-    const media = await this.mediaRepository.findById(id);
+    const media = await MediaRepo.findById(id);
 
     if (!media) {
       const error = new Error('Media not found') as AppError;
@@ -40,11 +31,11 @@ export class MediaService {
     url: string;
     uploadedBy: string;
   }) {
-    return await this.mediaRepository.create(data);
+    return await MediaRepo.create(data);
   }
 
   async deleteMedia(id: string) {
-    const media = await this.mediaRepository.findById(id);
+    const media = await MediaRepo.findById(id);
 
     if (!media) {
       const error = new Error('Media not found') as AppError;
@@ -53,7 +44,6 @@ export class MediaService {
       throw error;
     }
 
-    await this.mediaRepository.delete(id);
+    await MediaRepo.delete(id);
   }
 }
-

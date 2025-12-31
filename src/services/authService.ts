@@ -1,18 +1,9 @@
-import { PrismaClient } from '@prisma/client';
-import { AdminRepository } from '../repositories/adminRepository';
+import { AdminRepo } from '../repositories/adminRepository';
 import { hashPassword, comparePassword } from '../utils/bcrypt';
 import { generateAccessToken, generateRefreshToken, TokenPayload } from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
 
-const prisma = new PrismaClient();
-
 export class AuthService {
-  private adminRepository: AdminRepository;
-
-  constructor() {
-    this.adminRepository = new AdminRepository(prisma);
-  }
-
   async login(email: string, password: string): Promise<{
     accessToken: string;
     refreshToken: string;
@@ -23,7 +14,7 @@ export class AuthService {
       role: string;
     };
   }> {
-    const admin = await this.adminRepository.findByEmail(email);
+    const admin = await AdminRepo.findByEmail(email);
 
     if (!admin || !admin.isActive) {
       const error = new Error('Invalid credentials') as AppError;
@@ -42,7 +33,7 @@ export class AuthService {
     }
 
     // Update last login
-    await this.adminRepository.updateLastLogin(admin.id);
+    await AdminRepo.updateLastLogin(admin.id);
 
     const tokenPayload: TokenPayload = {
       adminId: admin.id,
@@ -66,7 +57,7 @@ export class AuthService {
   }
 
   async getAdminById(id: string) {
-    const admin = await this.adminRepository.findById(id);
+    const admin = await AdminRepo.findById(id);
 
     if (!admin) {
       const error = new Error('Admin not found') as AppError;
@@ -84,7 +75,7 @@ export class AuthService {
     name: string;
     role?: string;
   }) {
-    const existingAdmin = await this.adminRepository.findByEmail(data.email);
+    const existingAdmin = await AdminRepo.findByEmail(data.email);
 
     if (existingAdmin) {
       const error = new Error('Email already exists') as AppError;
@@ -95,12 +86,11 @@ export class AuthService {
 
     const hashedPassword = await hashPassword(data.password);
 
-    return await this.adminRepository.create({
+    return await AdminRepo.create({
       email: data.email,
       password: hashedPassword,
       name: data.name,
-      role: data.role as any || 'EDITOR',
+      role: (data.role as any) || 'EDITOR',
     });
   }
 }
-

@@ -1,16 +1,8 @@
-import { PrismaClient, ColumnStatus } from '@prisma/client';
-import { ColumnRepository } from '../repositories/columnRepository';
+import { ColumnRepo } from '../repositories/columnRepository';
+import { ColumnStatus } from '../models/Column';
 import { AppError } from '../middleware/errorHandler';
 
-const prisma = new PrismaClient();
-
 export class ColumnService {
-  private columnRepository: ColumnRepository;
-
-  constructor() {
-    this.columnRepository = new ColumnRepository(prisma);
-  }
-
   async getColumns(options: {
     status?: ColumnStatus;
     categoryId?: string;
@@ -22,11 +14,11 @@ export class ColumnService {
     orderBy?: 'createdAt' | 'publishedAt' | 'viewCount' | 'title';
     orderDirection?: 'asc' | 'desc';
   }) {
-    return await this.columnRepository.findMany(options);
+    return await ColumnRepo.findMany(options);
   }
 
   async getColumnById(id: string) {
-    const column = await this.columnRepository.findById(id);
+    const column = await ColumnRepo.findById(id);
 
     if (!column) {
       const error = new Error('Column not found') as AppError;
@@ -39,7 +31,7 @@ export class ColumnService {
   }
 
   async getColumnBySlug(slug: string) {
-    const column = await this.columnRepository.findBySlug(slug);
+    const column = await ColumnRepo.findBySlug(slug);
 
     if (!column) {
       const error = new Error('Column not found') as AppError;
@@ -63,7 +55,7 @@ export class ColumnService {
     tagIds?: string[];
   }) {
     // Check if slug already exists
-    const existingColumn = await this.columnRepository.findBySlug(data.slug);
+    const existingColumn = await ColumnRepo.findBySlug(data.slug);
     if (existingColumn) {
       const error = new Error('Slug already exists') as AppError;
       error.statusCode = 409;
@@ -74,7 +66,7 @@ export class ColumnService {
     const publishedAt =
       data.status === ColumnStatus.PUBLISHED ? new Date() : undefined;
 
-    return await this.columnRepository.create({
+    return await ColumnRepo.create({
       ...data,
       publishedAt,
     });
@@ -94,7 +86,7 @@ export class ColumnService {
     }
   ) {
     // Check if column exists
-    const existingColumn = await this.columnRepository.findById(id);
+    const existingColumn = await ColumnRepo.findById(id);
     if (!existingColumn) {
       const error = new Error('Column not found') as AppError;
       error.statusCode = 404;
@@ -104,7 +96,7 @@ export class ColumnService {
 
     // If slug is being updated, check if it's available
     if (data.slug && data.slug !== existingColumn.slug) {
-      const slugExists = await this.columnRepository.findBySlug(data.slug);
+      const slugExists = await ColumnRepo.findBySlug(data.slug);
       if (slugExists) {
         const error = new Error('Slug already exists') as AppError;
         error.statusCode = 409;
@@ -122,14 +114,14 @@ export class ColumnService {
       publishedAt = new Date();
     }
 
-    return await this.columnRepository.update(id, {
+    return await ColumnRepo.update(id, {
       ...data,
       publishedAt,
     });
   }
 
   async deleteColumn(id: string) {
-    const column = await this.columnRepository.findById(id);
+    const column = await ColumnRepo.findById(id);
 
     if (!column) {
       const error = new Error('Column not found') as AppError;
@@ -138,7 +130,7 @@ export class ColumnService {
       throw error;
     }
 
-    await this.columnRepository.delete(id);
+    await ColumnRepo.delete(id);
   }
 
   async updateStatus(id: string, status: ColumnStatus) {
@@ -146,7 +138,6 @@ export class ColumnService {
   }
 
   async incrementViewCount(id: string) {
-    await this.columnRepository.incrementViewCount(id);
+    await ColumnRepo.incrementViewCount(id);
   }
 }
-

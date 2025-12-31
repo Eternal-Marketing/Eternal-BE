@@ -1,10 +1,9 @@
 import { Router } from 'express';
-import { MediaController } from '../controllers/mediaController';
+import * as mediaController from '../controllers/mediaController';
 import { authenticate } from '../middleware/auth';
 import { uploadSingle } from '../middleware/upload';
 
 const router = Router();
-const mediaController = new MediaController();
 
 /**
  * @swagger
@@ -89,7 +88,7 @@ router.get('/:id', mediaController.getMediaById);
  *       400:
  *         description: 파일이 없거나 형식이 잘못됨
  */
-router.post('/upload', uploadSingle, mediaController.uploadFile);
+router.post('/upload', authenticate, uploadSingle, mediaController.uploadFile);
 
 /**
  * @swagger
@@ -109,7 +108,7 @@ router.post('/upload', uploadSingle, mediaController.uploadFile);
  *       204:
  *         description: 삭제 성공
  */
-router.delete('/:id', mediaController.deleteMedia);
+router.delete('/:id', authenticate, mediaController.deleteMedia);
 
 export { router as mediaRouter };
 

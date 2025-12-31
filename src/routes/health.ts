@@ -1,8 +1,7 @@
 import { Router } from 'express';
-import { HealthController } from '../controllers/healthController';
+import * as healthController from '../controllers/healthController';
 
 const router = Router();
-const healthController = new HealthController();
 
 /**
  * @swagger

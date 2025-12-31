@@ -1,13 +1,11 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { sequelize } from '../db';
 
 export class HealthService {
   async getHealthStatus() {
     // Check database connection
     let dbStatus = 'connected';
     try {
-      await prisma.$queryRaw`SELECT 1`;
+      await sequelize.authenticate();
     } catch (error) {
       dbStatus = 'disconnected';
     }
@@ -21,4 +19,3 @@ export class HealthService {
     };
   }
 }
-
