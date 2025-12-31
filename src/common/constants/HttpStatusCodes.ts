@@ -12,4 +12,3 @@ const HttpStatusCodes = {
 } as const;
 
 export default HttpStatusCodes;
-

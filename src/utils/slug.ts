@@ -9,4 +9,3 @@ export const createSlug = (text: string): string => {
     .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
     .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
 };
-
