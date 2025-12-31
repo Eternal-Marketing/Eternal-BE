@@ -87,11 +87,8 @@ MediaModel.init(
     tableName: 'media',
     timestamps: true,
     underscored: true,
-    indexes: [
-      { fields: ['uploaded_by'] },
-    ],
+    indexes: [{ fields: ['uploaded_by'] }],
   }
 );
 
 export default MediaModel;
-

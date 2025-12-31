@@ -93,4 +93,3 @@ AdminModel.init(
 );
 
 export default AdminModel;
-

@@ -93,4 +93,3 @@ CategoryModel.init(
 );
 
 export default CategoryModel;
-

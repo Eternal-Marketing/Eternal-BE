@@ -29,7 +29,15 @@ export interface ColumnAttributes {
 
 export type ColumnCreationAttributes = Optional<
   ColumnAttributes,
-  'id' | 'excerpt' | 'thumbnailUrl' | 'status' | 'categoryId' | 'viewCount' | 'publishedAt' | 'createdAt' | 'updatedAt'
+  | 'id'
+  | 'excerpt'
+  | 'thumbnailUrl'
+  | 'status'
+  | 'categoryId'
+  | 'viewCount'
+  | 'publishedAt'
+  | 'createdAt'
+  | 'updatedAt'
 >;
 
 export class ColumnModel
@@ -136,4 +144,3 @@ ColumnModel.init(
 );
 
 export default ColumnModel;
-

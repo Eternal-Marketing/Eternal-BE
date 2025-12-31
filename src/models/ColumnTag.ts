@@ -74,4 +74,3 @@ ColumnTagModel.init(
 );
 
 export default ColumnTagModel;
-

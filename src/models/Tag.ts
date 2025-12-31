@@ -60,4 +60,3 @@ TagModel.init(
 );
 
 export default TagModel;
-
