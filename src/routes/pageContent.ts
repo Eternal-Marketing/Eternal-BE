@@ -115,4 +115,3 @@ router.put('/:key', authenticate, pageContentController.updateContent);
 router.post('/', authenticate, pageContentController.upsertContent);
 
 export { router as pageContentRouter };
-

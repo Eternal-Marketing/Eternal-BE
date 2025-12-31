@@ -6,11 +6,7 @@ import HttpStatusCodes from '../common/constants/HttpStatusCodes';
  * 태그 목록 조회
  * GET /api/tags
  */
-export async function getTags(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function getTags(req: Request, res: Response, next: NextFunction) {
   try {
     const { includeCount } = req.query;
     const tagService = new TagService();

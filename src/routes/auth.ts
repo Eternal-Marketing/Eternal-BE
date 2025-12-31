@@ -103,4 +103,3 @@ router.get('/me', authenticate, authController.getMe);
 router.post('/refresh', authController.refreshToken);
 
 export { router as authRouter };
-

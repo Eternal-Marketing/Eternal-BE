@@ -38,4 +38,3 @@ const router = Router();
 router.get('/', healthController.check);
 
 export { router as healthRouter };
-

@@ -292,4 +292,3 @@ router.delete('/:id', authenticate, columnController.deleteColumn);
 router.patch('/:id/status', authenticate, columnController.updateStatus);
 
 export { router as columnRouter };
-

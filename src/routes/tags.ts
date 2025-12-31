@@ -92,4 +92,3 @@ router.post('/', authenticate, tagController.createTag);
 router.delete('/:id', authenticate, tagController.deleteTag);
 
 export { router as tagRouter };
-

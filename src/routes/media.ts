@@ -111,4 +111,3 @@ router.post('/upload', authenticate, uploadSingle, mediaController.uploadFile);
 router.delete('/:id', authenticate, mediaController.deleteMedia);
 
 export { router as mediaRouter };
-

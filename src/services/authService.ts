@@ -1,10 +1,17 @@
 import { AdminRepo } from '../repositories/adminRepository';
 import { hashPassword, comparePassword } from '../utils/bcrypt';
-import { generateAccessToken, generateRefreshToken, TokenPayload } from '../utils/jwt';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  TokenPayload,
+} from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
 
 export class AuthService {
-  async login(email: string, password: string): Promise<{
+  async login(
+    email: string,
+    password: string
+  ): Promise<{
     accessToken: string;
     refreshToken: string;
     admin: {

@@ -151,4 +151,3 @@ router.put('/:id', authenticate, categoryController.updateCategory);
 router.delete('/:id', authenticate, categoryController.deleteCategory);
 
 export { router as categoryRouter };
-
