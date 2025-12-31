@@ -41,7 +41,7 @@
                │
                ▼
 ┌─────────────────────────────────────────┐
-│         Prisma Client (ORM)              │
+│         Sequelize ORM                     │
 │  - 데이터베이스 연결                      │
 │  - 타입 안전한 쿼리                       │
 └─────────────────────────────────────────┘
@@ -647,8 +647,8 @@ export class ValidationError extends Error implements AppError {
 
 새로운 기능을 구현할 때 다음을 확인하세요:
 
-- [ ] Prisma Schema에 필요한 모델이 정의되어 있나요?
-- [ ] Migration이 실행되었나요? (`npm run prisma:generate` 실행)
+- [ ] Sequelize Model에 필요한 모델이 정의되어 있나요?
+- [ ] Migration이 실행되었나요? (`npm run db:migrate` 실행)
 - [ ] Repository에 필요한 CRUD 메서드가 구현되었나요?
 - [ ] Service에 비즈니스 로직이 올바르게 구현되었나요?
 - [ ] Controller가 적절히 요청/응답을 처리하나요?
@@ -661,7 +661,7 @@ export class ValidationError extends Error implements AppError {
 
 ## 📚 참고 자료
 
-- **Prisma 문서**: https://www.prisma.io/docs
+- **Sequelize 문서**: https://sequelize.org/docs/v6/
 - **Express.js 가이드**: https://expressjs.com/en/guide/routing.html
 - **TypeScript 핸드북**: https://www.typescriptlang.org/docs/handbook/intro.html
 - **RESTful API 설계**: https://restfulapi.net/
@@ -671,10 +671,10 @@ export class ValidationError extends Error implements AppError {
 ## ❓ 자주 묻는 질문
 
 **Q: Repository를 항상 만들어야 하나요?**
-A: 복잡한 쿼리나 재사용이 필요한 경우 Repository를 만들지만, 간단한 CRUD는 Service에서 직접 Prisma를 사용해도 됩니다.
+A: 복잡한 쿼리나 재사용이 필요한 경우 Repository를 만들지만, 간단한 CRUD는 Service에서 직접 Sequelize Model을 사용해도 됩니다.
 
 **Q: 트랜잭션은 어디서 관리하나요?**
-A: Service 계층에서 `prisma.$transaction()`을 사용하여 트랜잭션을 관리합니다.
+A: Service 계층에서 `sequelize.transaction()`을 사용하여 트랜잭션을 관리합니다.
 
 **Q: 에러는 어디서 처리하나요?**
 A: 컨트롤러에서 throw하고, errorHandler 미들웨어에서 일괄 처리합니다.

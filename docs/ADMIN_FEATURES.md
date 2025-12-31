@@ -230,7 +230,7 @@
 3. **CSRF**: 토큰 기반 CSRF 방어
 4. **파일 업로드**: 파일 타입 검증, 크기 제한, 바이러스 스캔 (선택)
 5. **Rate Limiting**: API 호출 제한
-6. **SQL Injection**: Prisma ORM 사용으로 방어
+6. **SQL Injection**: Sequelize ORM 사용으로 방어
 7. **XSS**: 입력 데이터 sanitization
 
 ---

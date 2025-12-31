@@ -7,77 +7,99 @@
 ### 1. Repository 템플릿
 ```typescript
 // src/repositories/[entity]Repository.ts
-import { PrismaClient, [Entity], Prisma } from '@prisma/client';
+import [Entity]Model, { [Entity]CreationAttributes } from '../models/[Entity]';
 
-export class [Entity]Repository {
-  constructor(private prisma: PrismaClient) {}
+export const [Entity]Repo = {
+  /**
+   * ID로 엔티티 조회
+   */
+  async findById(id: string) {
+    const entity = await [Entity]Model.findByPk(id);
+    return entity ? entity.get() : null;
+  },
 
-  async findById(id: string, tx?: Prisma.TransactionClient): Promise<[Entity] | null> {
-    const client = tx || this.prisma;
-    return await client.[entity].findUnique({ where: { id } });
-  }
+  /**
+   * 조건으로 엔티티 목록 조회
+   */
+  async findMany(filters?: any) {
+    const entities = await [Entity]Model.findAll({ 
+      where: filters,
+      order: [['createdAt', 'DESC']],
+    });
+    return entities.map(e => e.get());
+  },
 
-  async findMany(filters?: any, tx?: Prisma.TransactionClient): Promise<[Entity][]> {
-    const client = tx || this.prisma;
-    return await client.[entity].findMany({ where: filters });
-  }
+  /**
+   * 엔티티 생성
+   */
+  async create(data: [Entity]CreationAttributes) {
+    const entity = await [Entity]Model.create(data);
+    return entity.get();
+  },
 
-  async create(data: any, tx?: Prisma.TransactionClient): Promise<[Entity]> {
-    const client = tx || this.prisma;
-    return await client.[entity].create({ data });
-  }
+  /**
+   * 엔티티 수정
+   */
+  async update(id: string, data: Partial<[Entity]CreationAttributes>) {
+    const [affectedRows] = await [Entity]Model.update(data, { 
+      where: { id } 
+    });
+    if (affectedRows === 0) return null;
+    return await [Entity]Repo.findById(id);
+  },
 
-  async update(id: string, data: any, tx?: Prisma.TransactionClient): Promise<[Entity] | null> {
-    const client = tx || this.prisma;
-    try {
-      return await client.[entity].update({ where: { id }, data });
-    } catch (error) {
-      if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') return null;
-      throw error;
-    }
-  }
-
-  async delete(id: string, tx?: Prisma.TransactionClient): Promise<void> {
-    const client = tx || this.prisma;
-    await client.[entity].delete({ where: { id } });
-  }
-}
+  /**
+   * 엔티티 삭제
+   */
+  async delete(id: string) {
+    const affectedRows = await [Entity]Model.destroy({ where: { id } });
+    return affectedRows > 0;
+  },
+};
 ```
 
 ### 2. Service 템플릿
 ```typescript
 // src/services/[entity]Service.ts
-import { PrismaClient } from '@prisma/client';
-import { [Entity]Repository } from '../repositories/[entity]Repository';
+import { [Entity]Repo } from '../repositories/[entity]Repository';
 import { AppError } from '../middleware/errorHandler';
 
-const prisma = new PrismaClient();
-
-export class [Entity]Service {
-  private [entity]Repository: [Entity]Repository;
-
-  constructor() {
-    this.[entity]Repository = new [Entity]Repository(prisma);
-  }
-
+export const [Entity]Service = {
   async findById(id: string) {
-    return await this.[entity]Repository.findById(id);
-  }
+    const entity = await [Entity]Repo.findById(id);
+    if (!entity) {
+      const error = new Error('[Entity] not found') as AppError;
+      error.statusCode = 404;
+      throw error;
+    }
+    return entity;
+  },
 
   async create(data: any) {
     // 비즈니스 로직 추가
-    return await this.[entity]Repository.create(data);
-  }
+    return await [Entity]Repo.create(data);
+  },
 
   async update(id: string, data: any) {
     // 권한 체크 등
-    return await this.[entity]Repository.update(id, data);
-  }
+    const entity = await [Entity]Repo.update(id, data);
+    if (!entity) {
+      const error = new Error('[Entity] not found') as AppError;
+      error.statusCode = 404;
+      throw error;
+    }
+    return entity;
+  },
 
   async delete(id: string) {
-    await this.[entity]Repository.delete(id);
-  }
-}
+    const deleted = await [Entity]Repo.delete(id);
+    if (!deleted) {
+      const error = new Error('[Entity] not found') as AppError;
+      error.statusCode = 404;
+      throw error;
+    }
+  },
+};
 ```
 
 ### 3. Controller 템플릿
@@ -86,60 +108,32 @@ export class [Entity]Service {
 import { Request, Response } from 'express';
 import { [Entity]Service } from '../services/[entity]Service';
 
-export class [Entity]Controller {
-  private [entity]Service: [Entity]Service;
+export const [Entity]Controller = {
+  getById: async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const entity = await [Entity]Service.findById(id);
+    res.status(200).json({ status: 'success', data: { [entity] } });
+  },
 
-  constructor() {
-    this.[entity]Service = new [Entity]Service();
-  }
+  create: async (req: Request, res: Response): Promise<void> => {
+    const data = req.body;
+    const entity = await [Entity]Service.create(data);
+    res.status(201).json({ status: 'success', data: { [entity] } });
+  },
 
-  getById = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { id } = req.params;
-      const [entity] = await this.[entity]Service.findById(id);
-      
-      if (![entity]) {
-        res.status(404).json({ status: 'error', message: 'Not found' });
-        return;
-      }
+  update: async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const data = req.body;
+    const entity = await [Entity]Service.update(id, data);
+    res.status(200).json({ status: 'success', data: { [entity] } });
+  },
 
-      res.status(200).json({ status: 'success', data: { [entity] } });
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  create = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const data = req.body;
-      const [entity] = await this.[entity]Service.create(data);
-      res.status(201).json({ status: 'success', data: { [entity] } });
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  update = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { id } = req.params;
-      const data = req.body;
-      const [entity] = await this.[entity]Service.update(id, data);
-      res.status(200).json({ status: 'success', data: { [entity] } });
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  delete = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { id } = req.params;
-      await this.[entity]Service.delete(id);
-      res.status(204).send();
-    } catch (error) {
-      throw error;
-    }
-  };
-}
+  delete: async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    await [Entity]Service.delete(id);
+    res.status(204).send();
+  },
+};
 ```
 
 ### 4. Route 템플릿
@@ -151,22 +145,21 @@ import { [Entity]Controller } from '../controllers/[entity]Controller';
 // import { validate } from '../middleware/validation';
 
 const router = Router();
-const [entity]Controller = new [Entity]Controller();
 
 // GET /[entities]
-router.get('/', [entity]Controller.getAll);
+router.get('/', [Entity]Controller.getAll);
 
 // GET /[entities]/:id
-router.get('/:id', [entity]Controller.getById);
+router.get('/:id', [Entity]Controller.getById);
 
 // POST /[entities]
-router.post('/', [entity]Controller.create);
+router.post('/', [Entity]Controller.create);
 
 // PUT /[entities]/:id
-router.put('/:id', [entity]Controller.update);
+router.put('/:id', [Entity]Controller.update);
 
 // DELETE /[entities]/:id
-router.delete('/:id', [entity]Controller.delete);
+router.delete('/:id', [Entity]Controller.delete);
 
 export { router as [entity]Router };
 ```
@@ -181,81 +174,82 @@ app.use('/[entities]', [entity]Router);
 
 ---
 
-## 🔧 자주 사용하는 Prisma 패턴
+## 🔧 자주 사용하는 Sequelize 패턴
 
 ### 단순 조회
 ```typescript
-// findUnique: 고유 필드로 조회
-await prisma.user.findUnique({ where: { id } });
-await prisma.user.findUnique({ where: { email } });
+import UserModel from '../models/User';
 
-// findFirst: 첫 번째 결과
-await prisma.user.findFirst({ where: { name: { contains: 'John' } } });
+// findByPk: Primary Key로 조회
+await UserModel.findByPk(id);
 
-// findMany: 여러 결과
-await prisma.user.findMany({ 
+// findOne: 첫 번째 결과
+await UserModel.findOne({ where: { email } });
+await UserModel.findOne({ where: { name: { [Op.like]: '%John%' } } });
+
+// findAll: 여러 결과
+await UserModel.findAll({ 
   where: { role: 'ADMIN' },
-  orderBy: { createdAt: 'desc' },
-  take: 10,
-  skip: 0,
+  order: [['createdAt', 'DESC']],
+  limit: 10,
+  offset: 0,
 });
 ```
 
 ### 관계 포함 (Include)
 ```typescript
+import PostModel from '../models/Post';
+
 // 관계된 데이터 포함
-await prisma.post.findUnique({
-  where: { id },
-  include: {
-    author: true,
-    comments: true,
-  },
+await PostModel.findByPk(id, {
+  include: [
+    { model: UserModel, as: 'author' },
+    { model: CommentModel, as: 'comments' },
+  ],
 });
 
 // 관계 필터링
-await prisma.post.findMany({
+await PostModel.findAll({
   where: {
-    author: {
-      email: { contains: '@example.com' }
-    }
+    '$author.email$': { [Op.like]: '%@example.com%' }
   },
-  include: {
-    author: {
-      select: { id: true, name: true, email: true }
-    }
-  }
+  include: [{
+    model: UserModel,
+    as: 'author',
+    attributes: ['id', 'name', 'email'],
+  }],
 });
 ```
 
 ### 트랜잭션
 ```typescript
-// 단순 트랜잭션
-await prisma.$transaction(async (tx) => {
-  const user = await tx.user.create({ data: userData });
-  await tx.post.create({ 
-    data: { ...postData, authorId: user.id } 
-  });
+import { sequelize } from '../db';
+
+// Sequelize 트랜잭션
+await sequelize.transaction(async (tx) => {
+  const user = await UserModel.create(userData, { transaction: tx });
+  await PostModel.create(
+    { ...postData, authorId: user.id },
+    { transaction: tx }
+  );
   return user;
 });
-
-// 여러 작업
-await prisma.$transaction([
-  prisma.user.create({ data: userData }),
-  prisma.post.create({ data: postData }),
-]);
 ```
 
-### 에러 코드
+### 에러 처리
 ```typescript
 try {
-  await prisma.user.update({ where: { id }, data });
+  await UserModel.update(data, { where: { id } });
 } catch (error) {
-  if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
-    // Record not found
+  // SequelizeValidationError
+  if (error instanceof ValidationError) {
+    // 검증 에러 처리
   }
-  if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2002') {
-    // Unique constraint violation
+  // SequelizeUniqueConstraintError
+  if (error instanceof UniqueConstraintError) {
+    // 중복 제약 위반
   }
+  throw error;
 }
 ```
 
@@ -350,10 +344,11 @@ new Date().toISOString(); // "2024-01-01T00:00:00.000Z"
 
 ### UUID 생성
 ```typescript
-// Prisma가 자동 생성 (@default(uuid()))
-// 또는
 import { randomUUID } from 'crypto';
 const id = randomUUID();
+
+// Sequelize 모델에서 UUID 필드 사용
+// migration에서 UUIDV4() 사용
 ```
 
 ### 비밀번호 해싱 (예시)
@@ -387,8 +382,9 @@ const isValid = await bcrypt.compare(password, hashedPassword);
 - Repositories: `src/repositories/`
 - Middleware: `src/middleware/`
 - Utils: `src/utils/`
-- Types: `src/types/` (선택사항)
-- Schema: `prisma/schema.prisma`
+- Models: `src/models/`
+- Migrations: `src/db/migrations/`
+- Seeders: `src/db/seeders/`
 
 ---
 

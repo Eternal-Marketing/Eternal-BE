@@ -1,6 +1,6 @@
 # Eternal Backend API
 
-Express + TypeScript + Prisma 기반 Node.js 백엔드 애플리케이션
+Express + TypeScript + Sequelize 기반 Node.js 백엔드 애플리케이션
 
 ## 🚀 Tech Stack
 
@@ -23,8 +23,6 @@ BE/
 │   ├── middleware/      # Express middleware
 │   ├── utils/           # Utility functions
 │   └── index.ts         # Application entry point
-├── prisma/
-│   └── schema.prisma    # Prisma schema
 ├── dist/                # Compiled JavaScript (generated)
 ├── .env                 # Environment variables (not in git)
 ├── .env.example         # Environment variables template
@@ -39,7 +37,7 @@ BE/
 ### Prerequisites
 
 - Node.js >= 18.0.0
-- PostgreSQL (running locally or remote)
+- MySQL (running locally or remote)
 - npm or yarn
 
 ### Installation
@@ -73,6 +71,10 @@ BE/
 
 4. **Setup Database**
    ```bash
+   # MySQL 데이터베이스 생성 (수동으로)
+   mysql -u root -p
+   CREATE DATABASE eternal_db;
+   
    # Run migrations (creates database tables)
    npm run db:migrate
    
@@ -210,7 +212,7 @@ Optional variables:
 1. Make changes to TypeScript files in `src/`
 2. Development server auto-reloads on file changes
 3. Use `npm run lint` and `npm run format` before committing
-4. Create Prisma migrations when schema changes: `npm run prisma:migrate`
+4. Create Sequelize migrations when schema changes: `npm run db:migrate`
 
 ## 🔒 Cross-Platform Compatibility
 
@@ -226,8 +228,7 @@ All scripts are cross-platform compatible (Windows/macOS/Linux):
 npm run build
 
 # Apply database migrations
-npm run prisma:migrate:deploy
-npm run prisma:generate
+npm run db:migrate
 
 # Start production server
 npm start
@@ -236,15 +237,16 @@ npm start
 ## 🐛 Troubleshooting
 
 ### Database Connection Issues
-- Verify PostgreSQL is running
-- Check `DATABASE_URL` in `.env`
-- Ensure database exists (Prisma will create schema automatically via migrations)
+- Verify MySQL is running
+- Check database credentials in `.env` (DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT)
+- Ensure database exists (create manually before running migrations)
 
 ### Port Already in Use
 - Change `PORT` in `.env` or kill the process using the port
 
-### Prisma Client Not Generated
-- Run `npm run prisma:generate` after schema changes
+### Migration Issues
+- Ensure database exists before running migrations
+- Check Sequelize migration files in `src/db/migrations/`
 
 ## 📄 License
 

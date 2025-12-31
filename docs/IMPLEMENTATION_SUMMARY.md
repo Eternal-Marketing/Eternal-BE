@@ -108,7 +108,8 @@
 6. **PageContent** - 홈페이지 컨텐츠
 7. **Media** - 업로드된 파일
 
-**스키마 파일:** `prisma/schema.prisma`
+**모델 파일:** `src/models/` (Sequelize Models)
+**마이그레이션:** `src/db/migrations/` (Sequelize Migrations)
 
 ---
 
@@ -117,13 +118,10 @@
 ### 1. 데이터베이스 설정
 ```bash
 # Migration 실행
-npm run prisma:migrate
-
-# Prisma Client 생성
-npm run prisma:generate
+npm run db:migrate
 
 # 초기 데이터 시딩 (선택사항)
-npm run prisma:seed
+npm run db:seed
 ```
 
 ### 2. 환경 변수 설정
