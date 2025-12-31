@@ -1,7 +1,17 @@
-import ColumnModel, { ColumnCreationAttributes, ColumnStatus } from '../models/Column';
+import ColumnModel, {
+  ColumnCreationAttributes,
+  ColumnStatus,
+} from '../models/Column';
 import ColumnTagModel from '../models/ColumnTag';
 import TagModel from '../models/Tag';
 import { Op } from 'sequelize';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Column = ColumnModel as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ColumnTag = ColumnTagModel as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Tag = TagModel as any;
 
 export interface ColumnWithRelations {
   id: string;
@@ -91,16 +101,16 @@ export const ColumnRepo = {
 
     // 태그 필터링이 있는 경우
     if (tagId) {
-      const columnTags = await ColumnTagModel.findAll({
+      const columnTags = await ColumnTag.findAll({
         where: { tagId },
         attributes: ['columnId'],
       });
-      const columnIds = columnTags.map((ct) => ct.columnId);
+      const columnIds = columnTags.map(ct => ct.columnId);
       where.id = { [Op.in]: columnIds };
     }
 
     const [columns, total] = await Promise.all([
-      ColumnModel.findAll({
+      Column.findAll({
         where,
         offset: skip,
         limit,
@@ -129,17 +139,15 @@ export const ColumnRepo = {
           },
         ],
       }),
-      ColumnModel.count({ where }),
+      Column.count({ where }),
     ]);
 
     // Transform tags
-    const transformedColumns: ColumnWithRelations[] = columns.map((column) => {
+    const transformedColumns: ColumnWithRelations[] = columns.map(column => {
       const columnData = column.get() as any;
       return {
         ...columnData,
-        tags: columnData.tags
-          ? columnData.tags.map((ct: any) => ct.tag)
-          : [],
+        tags: columnData.tags ? columnData.tags.map((ct: any) => ct.tag) : [],
       };
     }) as ColumnWithRelations[];
 
@@ -153,7 +161,7 @@ export const ColumnRepo = {
    * ID로 칼럼 조회
    */
   async findById(id: string): Promise<ColumnWithRelations | null> {
-    const column = await ColumnModel.findByPk(id, {
+    const column = await Column.findByPk(id, {
       include: [
         {
           association: 'author',
@@ -184,9 +192,7 @@ export const ColumnRepo = {
     const columnData = column.get() as any;
     return {
       ...columnData,
-      tags: columnData.tags
-        ? columnData.tags.map((ct: any) => ct.tag)
-        : [],
+      tags: columnData.tags ? columnData.tags.map((ct: any) => ct.tag) : [],
     } as ColumnWithRelations;
   },
 
@@ -194,7 +200,7 @@ export const ColumnRepo = {
    * Slug로 칼럼 조회
    */
   async findBySlug(slug: string): Promise<ColumnWithRelations | null> {
-    const column = await ColumnModel.findOne({
+    const column = await Column.findOne({
       where: { slug },
       include: [
         {
@@ -226,9 +232,7 @@ export const ColumnRepo = {
     const columnData = column.get() as any;
     return {
       ...columnData,
-      tags: columnData.tags
-        ? columnData.tags.map((ct: any) => ct.tag)
-        : [],
+      tags: columnData.tags ? columnData.tags.map((ct: any) => ct.tag) : [],
     } as ColumnWithRelations;
   },
 
@@ -249,12 +253,12 @@ export const ColumnRepo = {
   }) {
     const { tagIds, ...columnData } = data;
 
-    const column = await ColumnModel.create(columnData as ColumnCreationAttributes);
+    const column = await Column.create(columnData as ColumnCreationAttributes);
 
     // 태그 연결
     if (tagIds && tagIds.length > 0) {
-      await ColumnTagModel.bulkCreate(
-        tagIds.map((tagId) => ({
+      await ColumnTag.bulkCreate(
+        tagIds.map(tagId => ({
           columnId: column.id,
           tagId,
         }))
@@ -286,14 +290,14 @@ export const ColumnRepo = {
     // 태그 업데이트
     if (tagIds !== undefined) {
       // 기존 태그 삭제
-      await ColumnTagModel.destroy({
+      await ColumnTag.destroy({
         where: { columnId: id },
       });
 
       // 새 태그 생성
       if (tagIds.length > 0) {
-        await ColumnTagModel.bulkCreate(
-          tagIds.map((tagId) => ({
+        await ColumnTag.bulkCreate(
+          tagIds.map(tagId => ({
             columnId: id,
             tagId,
           }))
@@ -301,7 +305,7 @@ export const ColumnRepo = {
       }
     }
 
-    const [updated] = await ColumnModel.update(updateData, {
+    const [updated] = await Column.update(updateData, {
       where: { id },
       returning: true,
     });
@@ -310,7 +314,7 @@ export const ColumnRepo = {
       return null;
     }
 
-    const column = await ColumnModel.findByPk(id);
+    const column = await Column.findByPk(id);
     return column ? column.get() : null;
   },
 
@@ -318,7 +322,7 @@ export const ColumnRepo = {
    * 칼럼 삭제
    */
   async delete(id: string) {
-    const deleted = await ColumnModel.destroy({ where: { id } });
+    const deleted = await Column.destroy({ where: { id } });
     if (deleted === 0) {
       throw new Error('Column not found');
     }
@@ -328,7 +332,7 @@ export const ColumnRepo = {
    * 조회수 증가
    */
   async incrementViewCount(id: string) {
-    await ColumnModel.increment('viewCount', {
+    await Column.increment('viewCount', {
       where: { id },
     });
   },

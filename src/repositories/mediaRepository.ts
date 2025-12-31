@@ -1,5 +1,8 @@
 import MediaModel, { MediaCreationAttributes } from '../models/Media';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Media = MediaModel as any;
+
 export const MediaRepo = {
   /**
    * 미디어 목록 조회
@@ -12,13 +15,13 @@ export const MediaRepo = {
     const { uploadedBy, page = 1, limit = 20 } = options || {};
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: { uploadedBy?: string } = {};
     if (uploadedBy) {
       where.uploadedBy = uploadedBy;
     }
 
     const [media, total] = await Promise.all([
-      MediaModel.findAll({
+      Media.findAll({
         where,
         offset: skip,
         limit,
@@ -31,11 +34,11 @@ export const MediaRepo = {
           },
         ],
       }),
-      MediaModel.count({ where }),
+      Media.count({ where }),
     ]);
 
     return {
-      media: media.map((m) => m.get()),
+      media: media.map(m => m.get()),
       total,
     };
   },
@@ -44,7 +47,7 @@ export const MediaRepo = {
    * ID로 미디어 조회
    */
   async findById(id: string) {
-    const media = await MediaModel.findByPk(id, {
+    const media = await Media.findByPk(id, {
       include: [
         {
           association: 'uploader',
@@ -60,7 +63,7 @@ export const MediaRepo = {
    * 미디어 생성
    */
   async create(data: MediaCreationAttributes) {
-    const media = await MediaModel.create(data);
+    const media = await Media.create(data);
     return media.get();
   },
 
@@ -68,7 +71,7 @@ export const MediaRepo = {
    * 미디어 삭제
    */
   async delete(id: string) {
-    const deleted = await MediaModel.destroy({ where: { id } });
+    const deleted = await Media.destroy({ where: { id } });
     if (deleted === 0) {
       throw new Error('Media not found');
     }

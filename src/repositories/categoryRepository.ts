@@ -1,19 +1,24 @@
 import CategoryModel, { CategoryCreationAttributes } from '../models/Category';
-import { Op } from 'sequelize';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Category = CategoryModel as any;
 
 export const CategoryRepo = {
   /**
    * 카테고리 목록 조회
    */
   async findMany(includeInactive = false) {
-    const where: any = {};
+    const where: { isActive?: boolean } = {};
     if (!includeInactive) {
       where.isActive = true;
     }
 
-    const categories = await CategoryModel.findAll({
+    const categories = await Category.findAll({
       where,
-      order: [['order', 'ASC'], ['createdAt', 'DESC']],
+      order: [
+        ['order', 'ASC'],
+        ['createdAt', 'DESC'],
+      ],
       include: [
         {
           association: 'parent',
@@ -25,7 +30,7 @@ export const CategoryRepo = {
 
     // _count는 별도로 계산
     const categoriesWithCount = await Promise.all(
-      categories.map(async (category) => {
+      categories.map(async (category: any) => {
         const count = await category.countColumns();
         return {
           ...category.get(),
@@ -41,7 +46,7 @@ export const CategoryRepo = {
    * ID로 카테고리 조회
    */
   async findById(id: string) {
-    const category = await CategoryModel.findByPk(id, {
+    const category = await Category.findByPk(id, {
       include: [
         {
           association: 'parent',
@@ -67,7 +72,7 @@ export const CategoryRepo = {
    * Slug로 카테고리 조회
    */
   async findBySlug(slug: string) {
-    const category = await CategoryModel.findOne({
+    const category = await Category.findOne({
       where: { slug },
     });
     return category ? category.get() : null;
@@ -77,7 +82,7 @@ export const CategoryRepo = {
    * 카테고리 생성
    */
   async create(data: CategoryCreationAttributes) {
-    const category = await CategoryModel.create(data);
+    const category = await Category.create(data);
     return category.get();
   },
 
@@ -85,7 +90,7 @@ export const CategoryRepo = {
    * 카테고리 수정
    */
   async update(id: string, data: Partial<CategoryCreationAttributes>) {
-    const [updated] = await CategoryModel.update(data, {
+    const [updated] = await Category.update(data, {
       where: { id },
       returning: true,
     });
@@ -94,7 +99,7 @@ export const CategoryRepo = {
       return null;
     }
 
-    const category = await CategoryModel.findByPk(id);
+    const category = await Category.findByPk(id);
     return category ? category.get() : null;
   },
 
@@ -102,7 +107,7 @@ export const CategoryRepo = {
    * 카테고리 삭제
    */
   async delete(id: string) {
-    const deleted = await CategoryModel.destroy({ where: { id } });
+    const deleted = await Category.destroy({ where: { id } });
     if (deleted === 0) {
       throw new Error('Category not found');
     }
