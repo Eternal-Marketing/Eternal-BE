@@ -4,6 +4,7 @@ import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
 import { errorHandler } from './middleware/errorHandler';
+import { requestLogger } from './middleware/requestLogger';
 import { healthRouter } from './routes/health';
 import { authRouter } from './routes/auth';
 import { columnRouter } from './routes/columns';
@@ -11,6 +12,7 @@ import { categoryRouter } from './routes/categories';
 import { tagRouter } from './routes/tags';
 import { pageContentRouter } from './routes/pageContent';
 import { mediaRouter } from './routes/media';
+import { subscriptionRouter } from './routes/subscriptions';
 import { connectDB } from './db';
 import './models'; // Initialize models and associations
 import ENV from './common/constants/ENV';
@@ -23,6 +25,9 @@ const UPLOAD_DIR = ENV.UploadDir;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Request logging (모든 요청 로깅)
+app.use(requestLogger);
 
 // Swagger UI
 app.use(
@@ -45,6 +50,7 @@ app.use('/api/categories', categoryRouter);
 app.use('/api/tags', tagRouter);
 app.use('/api/page-content', pageContentRouter);
 app.use('/api/media', mediaRouter);
+app.use('/api/subscriptions', subscriptionRouter);
 
 // Root route
 app.get('/', (req, res) => {
@@ -60,6 +66,7 @@ app.get('/', (req, res) => {
       tags: '/api/tags',
       pageContent: '/api/page-content',
       media: '/api/media',
+      subscriptions: '/api/subscriptions',
     },
   });
 });
