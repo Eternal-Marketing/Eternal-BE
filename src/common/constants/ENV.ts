@@ -21,6 +21,12 @@ const ENV = {
 
   // Upload
   UploadDir: process.env.UPLOAD_DIR || 'uploads',
+
+  // Subscription
+  InitialSubscriberCount: Number(process.env.INITIAL_SUBSCRIBER_COUNT || '0'),
+
+  // Debug
+  Debug: process.env.DEBUG === 'true',
 };
 
 export default ENV;
