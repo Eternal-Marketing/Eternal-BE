@@ -1,12 +1,21 @@
 import { Sequelize } from 'sequelize';
 import logger from 'jet-logger';
 import ENV from '../common/constants/ENV';
+import Logger from '../utils/logger';
+
+// 디버그 모드일 때 SQL 쿼리 로깅
+const shouldLogQueries =
+  process.env.DEBUG === 'true' || ENV.NodeEnv === 'development';
 
 export const sequelize = new Sequelize(ENV.DbName, ENV.DbUser, ENV.DbPassword, {
   host: ENV.DbHost,
   port: ENV.DbPort,
   dialect: 'mysql',
-  logging: false,
+  logging: shouldLogQueries
+    ? (sql: string, timing?: number) => {
+        Logger.query(sql, timing);
+      }
+    : false,
   dialectOptions: {
     connectTimeout: 60000, // EC2에서는 socketPath 절대 사용 금지
   },

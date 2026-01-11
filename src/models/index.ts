@@ -5,6 +5,7 @@ import ColumnModel from './Column';
 import ColumnTagModel from './ColumnTag';
 import PageContentModel from './PageContent';
 import MediaModel from './Media';
+import SubscriptionModel from './Subscription';
 
 // ----------------------------
 // 관계 설정 (Associations)
@@ -84,4 +85,5 @@ export {
   ColumnTagModel,
   PageContentModel,
   MediaModel,
+  SubscriptionModel,
 };
