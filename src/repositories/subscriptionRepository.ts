@@ -1,10 +1,14 @@
 import SubscriptionModel, {
   SubscriptionCreationAttributes,
   SubscriptionStatus,
+  SubscriptionAttributes,
 } from '../models/Subscription';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Subscription = SubscriptionModel as any;
+/**
+ * Sequelize 모델을 타입 안전하게 사용하기 위한 래퍼
+ * get() 메서드의 반환 타입을 명시적으로 지정
+ */
+const Subscription = SubscriptionModel;
 
 export const SubscriptionRepo = {
   /**
@@ -54,7 +58,13 @@ export const SubscriptionRepo = {
       offset: options?.offset,
     });
 
-    return subscriptions.map(sub => sub.get());
+    /**
+     * Sequelize 모델 인스턴스를 plain object로 변환
+     * get() 메서드는 모델의 데이터를 JavaScript 객체로 반환
+     */
+    return subscriptions.map(
+      (sub): SubscriptionAttributes => sub.get() as SubscriptionAttributes
+    );
   },
 
   /**
