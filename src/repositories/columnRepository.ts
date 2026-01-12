@@ -3,8 +3,8 @@ import ColumnModel, {
   ColumnStatus,
   ColumnAttributes,
 } from '../models/Column';
-import ColumnTagModel, { ColumnTagAttributes } from '../models/ColumnTag';
-import TagModel, { TagAttributes } from '../models/Tag';
+import ColumnTagModel from '../models/ColumnTag';
+import { TagAttributes } from '../models/Tag';
 import { Op, WhereOptions } from 'sequelize';
 
 /**
@@ -12,7 +12,6 @@ import { Op, WhereOptions } from 'sequelize';
  */
 const Column = ColumnModel;
 const ColumnTag = ColumnTagModel;
-const Tag = TagModel;
 
 export interface ColumnWithRelations {
   id: string;
@@ -100,7 +99,8 @@ export const ColumnRepo = {
     }
 
     if (search) {
-      where[Op.or] = [
+      // Sequelize where 조건에 Op.or 사용
+      (where as Record<string, unknown>)[Op.or as unknown as string] = [
         { title: { [Op.iLike]: `%${search}%` } },
         { content: { [Op.iLike]: `%${search}%` } },
         { excerpt: { [Op.iLike]: `%${search}%` } },

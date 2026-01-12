@@ -1,7 +1,4 @@
-import MediaModel, {
-  MediaCreationAttributes,
-  MediaAttributes,
-} from '../models/Media';
+import MediaModel, { MediaCreationAttributes } from '../models/Media';
 
 /**
  * Sequelize 모델을 타입 안전하게 사용
