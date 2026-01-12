@@ -24,7 +24,7 @@ export const TagRepo = {
    */
   async findMany(
     includeCount = false
-  ): Promise<TagWithCount[] | Array<Record<string, unknown>>> {
+  ): Promise<TagWithCount[] | TagAttributes[]> {
     const tags = await Tag.findAll({
       order: [['name', 'ASC']],
     });
@@ -43,7 +43,11 @@ export const TagRepo = {
           where: { tagId: tagData.id },
         });
         return {
-          ...tagData,
+          id: tagData.id,
+          name: tagData.name,
+          slug: tagData.slug,
+          createdAt: tagData.createdAt || new Date(),
+          updatedAt: tagData.updatedAt || new Date(),
           _count: { columns: count },
         };
       })
