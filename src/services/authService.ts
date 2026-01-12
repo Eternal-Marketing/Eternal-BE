@@ -6,6 +6,7 @@ import {
   TokenPayload,
 } from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
+import { AdminRole } from '../models/Admin';
 
 export class AuthService {
   async login(
@@ -76,11 +77,16 @@ export class AuthService {
     return admin;
   }
 
+  /**
+   * 어드민 계정 생성
+   * @param data - 어드민 생성 데이터
+   * @returns 생성된 어드민 정보
+   */
   async createAdmin(data: {
     email: string;
     password: string;
     name: string;
-    role?: string;
+    role?: AdminRole | string;
   }) {
     const existingAdmin = await AdminRepo.findByEmail(data.email);
 
@@ -93,11 +99,17 @@ export class AuthService {
 
     const hashedPassword = await hashPassword(data.password);
 
+    // role이 유효한 AdminRole인지 확인하고, 아니면 기본값 사용
+    const role: AdminRole =
+      data.role && Object.values(AdminRole).includes(data.role as AdminRole)
+        ? (data.role as AdminRole)
+        : AdminRole.EDITOR;
+
     return await AdminRepo.create({
       email: data.email,
       password: hashedPassword,
       name: data.name,
-      role: (data.role as any) || 'EDITOR',
+      role,
     });
   }
 }
