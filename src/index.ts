@@ -53,7 +53,7 @@ app.use('/api/media', mediaRouter);
 app.use('/api/subscriptions', subscriptionRouter);
 
 // Root route
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({
     message: 'Eternal Backend API',
     version: '1.0.0',
