@@ -7,11 +7,15 @@ export interface AppError extends Error {
   status?: string;
 }
 
+/**
+ * 전역 에러 핸들러 미들웨어
+ * 모든 에러를 일관된 형식으로 처리하고 로깅
+ */
 export const errorHandler = (
   err: AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction // Express 에러 핸들러 시그니처에 필요하지만 사용하지 않음
 ): void => {
   const statusCode = err.statusCode || 500;
   const status = err.status || 'error';

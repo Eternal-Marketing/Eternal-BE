@@ -15,7 +15,8 @@ class Logger {
   info(message: string, data?: unknown): void {
     if (this.isDevelopment || this.isDebug) {
       if (data) {
-        logger.info(`${message}`, data);
+        // jet-logger는 두 번째 인자로 boolean을 받으므로 JSON.stringify 사용
+        logger.info(`${message} ${JSON.stringify(data)}`);
       } else {
         logger.info(message);
       }
@@ -27,7 +28,8 @@ class Logger {
    */
   warn(message: string, data?: unknown): void {
     if (data) {
-      logger.warn(`${message}`, data);
+      // jet-logger는 두 번째 인자로 boolean을 받으므로 JSON.stringify 사용
+      logger.warn(`${message} ${JSON.stringify(data)}`);
     } else {
       logger.warn(message);
     }
@@ -58,7 +60,8 @@ class Logger {
   debug(message: string, data?: unknown): void {
     if (this.isDebug) {
       if (data) {
-        logger.info(`[DEBUG] ${message}`, data);
+        // jet-logger는 두 번째 인자로 boolean을 받으므로 JSON.stringify 사용
+        logger.info(`[DEBUG] ${message} ${JSON.stringify(data)}`);
       } else {
         logger.info(`[DEBUG] ${message}`);
       }

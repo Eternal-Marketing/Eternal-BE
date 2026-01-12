@@ -1,7 +1,13 @@
-import CategoryModel, { CategoryCreationAttributes } from '../models/Category';
+import CategoryModel, {
+  CategoryCreationAttributes,
+  CategoryAttributes,
+} from '../models/Category';
+import ColumnModel from '../models/Column';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Category = CategoryModel as any;
+/**
+ * Sequelize 모델을 타입 안전하게 사용
+ */
+const Category = CategoryModel;
 
 export const CategoryRepo = {
   /**
@@ -28,12 +34,18 @@ export const CategoryRepo = {
       ],
     });
 
-    // _count는 별도로 계산
+    /**
+     * 각 카테고리의 칼럼 수를 계산하여 _count 추가
+     * Column 모델을 직접 사용하여 카운트
+     */
     const categoriesWithCount = await Promise.all(
-      categories.map(async (category: any) => {
-        const count = await category.countColumns();
+      categories.map(async category => {
+        const categoryData = category.get() as CategoryAttributes;
+        const count = await ColumnModel.count({
+          where: { categoryId: categoryData.id },
+        });
         return {
-          ...category.get(),
+          ...categoryData,
           _count: { columns: count },
         };
       })
@@ -61,9 +73,12 @@ export const CategoryRepo = {
 
     if (!category) return null;
 
-    const count = await category.countColumns();
+    const categoryData = category.get() as CategoryAttributes;
+    const count = await ColumnModel.count({
+      where: { categoryId: categoryData.id },
+    });
     return {
-      ...category.get(),
+      ...categoryData,
       _count: { columns: count },
     };
   },

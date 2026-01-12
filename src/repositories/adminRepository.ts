@@ -1,17 +1,23 @@
-import AdminModel, { AdminCreationAttributes } from '../models/Admin';
+import AdminModel, {
+  AdminCreationAttributes,
+  AdminAttributes,
+} from '../models/Admin';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Admin = AdminModel as any;
+/**
+ * Sequelize 모델을 타입 안전하게 사용
+ */
+const Admin = AdminModel;
 
 export const AdminRepo = {
   /**
-   * 이메일로 어드민 조회
+   * 이메일로 어드민 조회 (비밀번호 포함)
+   * 로그인 시 비밀번호 검증을 위해 사용
    */
-  async findByEmail(email: string) {
+  async findByEmail(email: string): Promise<AdminAttributes | null> {
     const admin = await Admin.findOne({
       where: { email },
     });
-    return admin ? admin.get() : null;
+    return admin ? (admin.get() as AdminAttributes) : null;
   },
 
   /**
@@ -23,7 +29,7 @@ export const AdminRepo = {
         exclude: ['password'],
       },
     });
-    return admin ? admin.get() : null;
+    return admin ? (admin.get() as Omit<AdminAttributes, 'password'>) : null;
   },
 
   /**

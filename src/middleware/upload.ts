@@ -14,18 +14,22 @@ fs.mkdir(UPLOAD_DIR, { recursive: true }).catch(() => {
 });
 
 const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
+  destination: async (_req, _file, cb) => {
     cb(null, UPLOAD_DIR);
   },
-  filename: (req, file, cb) => {
+  filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname);
     const fileName = `${randomUUID()}${ext}`;
     cb(null, fileName);
   },
 });
 
+/**
+ * 파일 필터 함수
+ * 이미지 파일만 허용하도록 검증
+ */
 const fileFilter = (
-  req: any,
+  _req: Express.Request, // multer의 fileFilter에서 req는 사용하지 않지만 시그니처에 필요
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {

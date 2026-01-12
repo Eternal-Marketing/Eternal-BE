@@ -7,14 +7,20 @@ import { AppError } from '../middleware/errorHandler';
 import ENV from '../common/constants/ENV';
 import Logger from '../utils/logger';
 
+/**
+ * Subscription 서비스
+ * 상담신청 및 가입자 관리 비즈니스 로직을 담당
+ */
 export class SubscriptionService {
   /**
    * 상담신청 생성 (공개 API)
+   * 사용자가 홈페이지에서 상담신청을 제출하면 자동으로 PENDING 상태로 생성됨
+   * @param data - 상담신청 정보 (이름, 이메일, 전화번호, 메시지)
+   * @returns 생성된 상담신청 정보
    */
   async createSubscription(data: SubscriptionCreationAttributes) {
     Logger.debug('상담신청 생성 시작', { email: data.email, name: data.name });
 
-    // 기본 상태는 PENDING
     const subscription = await SubscriptionRepo.create({
       ...data,
       status: SubscriptionStatus.PENDING,
@@ -30,7 +36,11 @@ export class SubscriptionService {
 
   /**
    * 총 가입자 수 조회 (공개 API)
-   * 출범 이전 사용자 수 + 승인된 가입자 수
+   * 홈페이지 하단에 표시할 총 가입자 수를 계산
+   *
+   * 계산 공식: 출범 이전 사용자 수(환경변수) + 승인된 가입자 수(DB)
+   *
+   * @returns 총 가입자 수
    */
   async getTotalSubscriberCount() {
     Logger.debug('총 가입자 수 조회 시작');

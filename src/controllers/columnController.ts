@@ -35,7 +35,12 @@ export async function getColumns(
       authorId: authorId as string | undefined,
       page: parseInt(page as string),
       limit: parseInt(limit as string),
-      orderBy: orderBy as any,
+      orderBy: orderBy as
+        | 'createdAt'
+        | 'publishedAt'
+        | 'viewCount'
+        | 'title'
+        | undefined,
       orderDirection: orderDirection as 'asc' | 'desc',
     });
 

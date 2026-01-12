@@ -1,10 +1,11 @@
-import TagModel, { TagCreationAttributes } from '../models/Tag';
+import TagModel, { TagCreationAttributes, TagAttributes } from '../models/Tag';
 import ColumnTagModel from '../models/ColumnTag';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Tag = TagModel as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ColumnTag = ColumnTagModel as any;
+/**
+ * Sequelize 모델을 타입 안전하게 사용
+ */
+const Tag = TagModel;
+const ColumnTag = ColumnTagModel;
 
 export interface TagWithCount {
   id: string;
@@ -23,23 +24,30 @@ export const TagRepo = {
    */
   async findMany(
     includeCount = false
-  ): Promise<TagWithCount[] | Array<Record<string, unknown>>> {
+  ): Promise<TagWithCount[] | TagAttributes[]> {
     const tags = await Tag.findAll({
       order: [['name', 'ASC']],
     });
 
     if (!includeCount) {
-      return tags.map(tag => tag.get());
+      return tags.map(tag => tag.get() as TagAttributes);
     }
 
-    // _count 포함
-    const tagsWithCount = await Promise.all(
+    /**
+     * 각 태그의 칼럼 수를 계산하여 _count 추가
+     */
+    const tagsWithCount: TagWithCount[] = await Promise.all(
       tags.map(async tag => {
+        const tagData = tag.get() as TagAttributes;
         const count = await ColumnTag.count({
-          where: { tagId: tag.id },
+          where: { tagId: tagData.id },
         });
         return {
-          ...tag.get(),
+          id: tagData.id,
+          name: tagData.name,
+          slug: tagData.slug,
+          createdAt: tagData.createdAt || new Date(),
+          updatedAt: tagData.updatedAt || new Date(),
           _count: { columns: count },
         };
       })

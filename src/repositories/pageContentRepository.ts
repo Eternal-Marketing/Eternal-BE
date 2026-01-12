@@ -1,10 +1,13 @@
 import PageContentModel, {
   PageContentCreationAttributes,
   ContentType,
+  PageContentAttributes,
 } from '../models/PageContent';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PageContent = PageContentModel as any;
+/**
+ * Sequelize 모델을 타입 안전하게 사용
+ */
+const PageContent = PageContentModel;
 
 export const PageContentRepo = {
   /**
@@ -15,7 +18,9 @@ export const PageContentRepo = {
       where: { isActive: true },
       order: [['key', 'ASC']],
     });
-    return contents.map(content => content.get());
+    return contents.map(
+      (content): PageContentAttributes => content.get() as PageContentAttributes
+    );
   },
 
   /**
