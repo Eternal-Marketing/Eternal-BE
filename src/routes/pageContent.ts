@@ -30,7 +30,7 @@ router.get('/', pageContentController.getAllContents);
  *         required: true
  *         schema:
  *           type: string
- *         description: 컨텐츠 키 (예: main_banner, header_title)
+ *         description: 컨텐츠 키 (예 - main_banner, header_title)
  *         example: main_banner
  *     responses:
  *       200:
