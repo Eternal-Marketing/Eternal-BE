@@ -8,7 +8,7 @@ import HttpStatusCodes from '../common/constants/HttpStatusCodes';
  * GET /api/page-content
  */
 export async function getAllContents(
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ) {

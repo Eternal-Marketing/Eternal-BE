@@ -8,7 +8,7 @@ export interface AuthRequest extends Request {
 
 export const authenticate = async (
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
@@ -40,7 +40,7 @@ export const authenticate = async (
 
 // 역할 기반 인가 미들웨어 (선택사항)
 export const authorize = (...allowedRoles: string[]) => {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+  return (req: AuthRequest, _res: Response, next: NextFunction): void => {
     if (!req.admin) {
       const error = new Error('Authentication required') as AppError;
       error.statusCode = 401;

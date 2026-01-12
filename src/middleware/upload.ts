@@ -14,10 +14,10 @@ fs.mkdir(UPLOAD_DIR, { recursive: true }).catch(() => {
 });
 
 const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
+  destination: async (_req, _file, cb) => {
     cb(null, UPLOAD_DIR);
   },
-  filename: (req, file, cb) => {
+  filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname);
     const fileName = `${randomUUID()}${ext}`;
     cb(null, fileName);
