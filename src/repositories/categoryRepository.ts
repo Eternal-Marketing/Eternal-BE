@@ -2,6 +2,7 @@ import CategoryModel, {
   CategoryCreationAttributes,
   CategoryAttributes,
 } from '../models/Category';
+import ColumnModel from '../models/Column';
 
 /**
  * Sequelize 모델을 타입 안전하게 사용
@@ -35,12 +36,14 @@ export const CategoryRepo = {
 
     /**
      * 각 카테고리의 칼럼 수를 계산하여 _count 추가
-     * Sequelize association의 countColumns() 메서드 사용
+     * Column 모델을 직접 사용하여 카운트
      */
     const categoriesWithCount = await Promise.all(
       categories.map(async category => {
-        const count = await (category as CategoryModel).countColumns();
         const categoryData = category.get() as CategoryAttributes;
+        const count = await ColumnModel.count({
+          where: { categoryId: categoryData.id },
+        });
         return {
           ...categoryData,
           _count: { columns: count },
@@ -70,9 +73,12 @@ export const CategoryRepo = {
 
     if (!category) return null;
 
-    const count = await category.countColumns();
+    const categoryData = category.get() as CategoryAttributes;
+    const count = await ColumnModel.count({
+      where: { categoryId: categoryData.id },
+    });
     return {
-      ...category.get(),
+      ...categoryData,
       _count: { columns: count },
     };
   },
