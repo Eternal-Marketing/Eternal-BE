@@ -1,17 +1,18 @@
 import ColumnModel, {
   ColumnCreationAttributes,
   ColumnStatus,
+  ColumnAttributes,
 } from '../models/Column';
-import ColumnTagModel from '../models/ColumnTag';
-import TagModel from '../models/Tag';
-import { Op } from 'sequelize';
+import ColumnTagModel, { ColumnTagAttributes } from '../models/ColumnTag';
+import TagModel, { TagAttributes } from '../models/Tag';
+import { Op, WhereOptions } from 'sequelize';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Column = ColumnModel as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ColumnTag = ColumnTagModel as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Tag = TagModel as any;
+/**
+ * Sequelize 모델을 타입 안전하게 사용
+ */
+const Column = ColumnModel;
+const ColumnTag = ColumnTagModel;
+const Tag = TagModel;
 
 export interface ColumnWithRelations {
   id: string;
@@ -76,8 +77,15 @@ export const ColumnRepo = {
       orderDirection = 'desc',
     } = options;
 
+    // 페이지네이션: 건너뛸 레코드 수 계산
     const skip = (page - 1) * limit;
-    const where: any = {};
+
+    /**
+     * Sequelize where 조건 객체
+     * 동적으로 검색 조건을 추가하기 위해 WhereOptions 타입 사용
+     * status, categoryId, authorId, search 등 다양한 필터 조건 지원
+     */
+    const where: WhereOptions<ColumnAttributes> = {};
 
     if (status) {
       where.status = status;
@@ -142,14 +150,31 @@ export const ColumnRepo = {
       Column.count({ where }),
     ]);
 
-    // Transform tags
+    /**
+     * Sequelize include로 가져온 태그 데이터를 변환
+     * ColumnTag 모델을 통해 Tag 모델이 포함되어 있으므로 구조를 변환
+     */
     const transformedColumns: ColumnWithRelations[] = columns.map(column => {
-      const columnData = column.get() as any;
+      const columnData = column.get() as ColumnAttributes & {
+        author?: { id: string; name: string; email: string };
+        category?: { id: string; name: string; slug: string } | null;
+        tags?: Array<{
+          tag: TagAttributes;
+        }>;
+      };
+
+      // 태그 배열을 평탄화 (ColumnTag -> Tag)
+      const tags: TagAttributes[] = columnData.tags
+        ? columnData.tags.map(ct => ct.tag)
+        : [];
+
       return {
         ...columnData,
-        tags: columnData.tags ? columnData.tags.map((ct: any) => ct.tag) : [],
-      };
-    }) as ColumnWithRelations[];
+        author: columnData.author!,
+        category: columnData.category || null,
+        tags,
+      } as ColumnWithRelations;
+    });
 
     return {
       columns: transformedColumns,
@@ -189,10 +214,24 @@ export const ColumnRepo = {
 
     if (!column) return null;
 
-    const columnData = column.get() as any;
+    /**
+     * Sequelize include로 가져온 데이터 변환
+     */
+    const columnData = column.get() as ColumnAttributes & {
+      author: { id: string; name: string; email: string };
+      category: { id: string; name: string; slug: string } | null;
+      tags?: Array<{ tag: TagAttributes }>;
+    };
+
+    const tags: TagAttributes[] = columnData.tags
+      ? columnData.tags.map(ct => ct.tag)
+      : [];
+
     return {
       ...columnData,
-      tags: columnData.tags ? columnData.tags.map((ct: any) => ct.tag) : [],
+      author: columnData.author,
+      category: columnData.category || null,
+      tags,
     } as ColumnWithRelations;
   },
 
@@ -229,10 +268,24 @@ export const ColumnRepo = {
 
     if (!column) return null;
 
-    const columnData = column.get() as any;
+    /**
+     * Sequelize include로 가져온 데이터 변환
+     */
+    const columnData = column.get() as ColumnAttributes & {
+      author: { id: string; name: string; email: string };
+      category: { id: string; name: string; slug: string } | null;
+      tags?: Array<{ tag: TagAttributes }>;
+    };
+
+    const tags: TagAttributes[] = columnData.tags
+      ? columnData.tags.map(ct => ct.tag)
+      : [];
+
     return {
       ...columnData,
-      tags: columnData.tags ? columnData.tags.map((ct: any) => ct.tag) : [],
+      author: columnData.author,
+      category: columnData.category || null,
+      tags,
     } as ColumnWithRelations;
   },
 

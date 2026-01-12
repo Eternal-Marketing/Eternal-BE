@@ -1,7 +1,12 @@
-import MediaModel, { MediaCreationAttributes } from '../models/Media';
+import MediaModel, {
+  MediaCreationAttributes,
+  MediaAttributes,
+} from '../models/Media';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Media = MediaModel as any;
+/**
+ * Sequelize 모델을 타입 안전하게 사용
+ */
+const Media = MediaModel;
 
 export const MediaRepo = {
   /**
