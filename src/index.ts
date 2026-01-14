@@ -17,12 +17,19 @@ import { connectDB } from './db';
 import './models'; // Initialize models and associations
 import ENV from './common/constants/ENV';
 
+//서버 실행 시 가장 먼저 실행되는 곳!
+
 const app: Express = express();
 const PORT = ENV.Port;
 const UPLOAD_DIR = ENV.UploadDir;
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: true, // 모든 origin 허용
+    credentials: true, // 쿠키/인증 정보 허용
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -74,8 +81,11 @@ app.get('/', (_req, res) => {
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-// Start server
-(async () => {
+/**
+ * 서버 시작 함수
+ * DB 연결 후 Express 서버를 시작합니다.
+ */
+async function startServer() {
   try {
     // Connect to database
     await connectDB();
@@ -91,6 +101,8 @@ app.use(errorHandler);
     console.error('Failed to start server:', error);
     process.exit(1);
   }
-})();
+}
+
+startServer();
 
 export default app;
