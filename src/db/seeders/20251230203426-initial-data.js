@@ -14,7 +14,7 @@ module.exports = {
 
     // Create default admin account
     const adminEmail = 'admin@example.com';
-    
+
     const [existingAdmin] = await queryInterface.sequelize.query(
       `SELECT id FROM admins WHERE email = :email`,
       {
@@ -23,8 +23,10 @@ module.exports = {
       }
     );
 
-    if (!existingAdmin) {
-      const adminId = uuidv4();
+    let adminId = existingAdmin ? existingAdmin.id : null;
+
+    if (!adminId) {
+      adminId = uuidv4();
       await queryInterface.bulkInsert('admins', [
         {
           id: adminId,
@@ -43,11 +45,13 @@ module.exports = {
       console.log('⚠️  Admin account already exists');
     }
 
-    // Create sample categories
+    // Create default categories
     const categories = [
-      { name: '마케팅 칼럼', slug: 'marketing-column' },
       { name: '바이럴 마케팅', slug: 'viral-marketing' },
-      { name: '블로그 관리', slug: 'blog-management' },
+      { name: '퍼포먼스 마케팅', slug: 'performance-marketing' },
+      { name: 'SNS 마케팅', slug: 'sns-marketing' },
+      { name: '영상 컨텐츠 마케팅', slug: 'video-content-marketing' },
+      { name: '이터널 마케팅', slug: 'eternal-marketing' },
     ];
 
     for (const categoryData of categories) {
@@ -59,10 +63,13 @@ module.exports = {
         }
       );
 
-      if (!existing) {
+      let categoryId = existing ? existing.id : null;
+
+      if (!categoryId) {
+        categoryId = uuidv4();
         await queryInterface.bulkInsert('categories', [
           {
-            id: uuidv4(),
+            id: categoryId,
             name: categoryData.name,
             slug: categoryData.slug,
             order: 0,
@@ -73,6 +80,34 @@ module.exports = {
         ]);
         console.log(`✅ Created category: ${categoryData.name}`);
       }
+
+      const columnSlug = `sample-${categoryData.slug}`;
+      const [existingColumn] = await queryInterface.sequelize.query(
+        `SELECT id FROM columns WHERE slug = :slug`,
+        {
+          replacements: { slug: columnSlug },
+          type: Sequelize.QueryTypes.SELECT,
+        }
+      );
+
+      if (!existingColumn) {
+        await queryInterface.bulkInsert('columns', [
+          {
+            id: uuidv4(),
+            title: `${categoryData.name} 샘플 칼럼`,
+            slug: columnSlug,
+            content: `${categoryData.name} 관련 샘플 콘텐츠입니다.`,
+            excerpt: `${categoryData.name} 샘플 요약`,
+            status: 'DRAFT',
+            author_id: adminId,
+            category_id: categoryId,
+            view_count: 0,
+            created_at: new Date(),
+            updated_at: new Date(),
+          },
+        ]);
+        console.log(`✅ Created sample column: ${categoryData.name}`);
+      }
     }
 
     console.log('✨ Seeding completed!');
@@ -81,7 +116,22 @@ module.exports = {
   async down(queryInterface, Sequelize) {
     // Remove seeded data
     await queryInterface.bulkDelete('categories', {
-      slug: ['marketing-column', 'viral-marketing', 'blog-management'],
+      slug: [
+        'viral-marketing',
+        'performance-marketing',
+        'sns-marketing',
+        'video-content-marketing',
+        'eternal-marketing',
+      ],
+    });
+    await queryInterface.bulkDelete('columns', {
+      slug: [
+        'sample-viral-marketing',
+        'sample-performance-marketing',
+        'sample-sns-marketing',
+        'sample-video-content-marketing',
+        'sample-eternal-marketing',
+      ],
     });
     await queryInterface.bulkDelete('admins', {
       email: 'admin@example.com',
