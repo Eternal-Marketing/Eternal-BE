@@ -63,6 +63,7 @@ ColumnTagModel.init(
     sequelize,
     tableName: 'column_tags',
     timestamps: true,
+    updatedAt: false,
     underscored: true,
     indexes: [
       {
