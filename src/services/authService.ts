@@ -1,4 +1,5 @@
 import { AdminRepo } from '../repositories/adminRepository';
+import { AdminRefreshTokenRepo } from '../repositories/adminRefreshTokenRepository';
 import { hashPassword, comparePassword } from '../utils/bcrypt';
 import {
   generateAccessToken,
@@ -53,6 +54,13 @@ export class AuthService {
     const accessToken = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
+    // Refresh Token을 DB에 저장
+
+    await AdminRefreshTokenRepo.create({
+      adminId: admin.id,
+      token: refreshToken,
+    });
+
     return {
       accessToken,
       refreshToken,
@@ -95,14 +103,16 @@ export class AuthService {
     }
 
     try {
-      // Refresh Token 검증
-      // - JWT 서명이 올바른지 확인 (JWT_REFRESH_SECRET으로 서명되었는지)
-      // - 토큰이 만료되지 않았는지 확인 (7일 이내인지)
-      // - 토큰 구조가 올바른지 확인
       const payload: TokenPayload = verifyRefreshToken(refreshToken);
 
-      // Refresh Token에서 추출한 정보로 어드민 계정이 여전히 유효한지 확인
-      // (예: 계정이 비활성화되었거나 삭제되었을 수 있음)
+      const storedToken = await AdminRefreshTokenRepo.findByToken(refreshToken);
+      if (!storedToken) {
+        const error = new Error('Refresh token not found') as AppError;
+        error.statusCode = 401;
+        error.status = 'error';
+        throw error;
+      }
+
       const admin = await AdminRepo.findById(payload.adminId);
 
       if (!admin || !admin.isActive) {
@@ -113,9 +123,6 @@ export class AuthService {
         throw error;
       }
 
-      // 새로운 Access Token 생성
-      // - Access Token은 15분 동안만 유효 (짧은 수명으로 보안 강화)
-      // - Refresh Token과 달리 자주 교체되어야 하므로 짧은 수명이 적절
       const newTokenPayload: TokenPayload = {
         adminId: admin.id,
         email: admin.email,
