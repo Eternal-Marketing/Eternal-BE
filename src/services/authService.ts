@@ -147,6 +147,28 @@ export class AuthService {
   }
 
   /**
+   * 로그아웃 처리
+   * - 클라이언트가 가진 Refresh Token을 DB에서 삭제하여 무효화
+   * - 토큰이 이미 만료/삭제된 경우에도 "성공"으로 처리 (멱등성)
+   *
+   * @param refreshToken - 클라이언트가 저장하고 있던 Refresh Token
+   * @returns 삭제된 토큰 개수 (0 또는 1)
+   */
+  async logout(refreshToken: string): Promise<{ deletedCount: number }> {
+    if (!refreshToken) {
+      const error = new Error('Refresh token is required') as AppError;
+      error.statusCode = 400;
+      error.status = 'error';
+      throw error;
+    }
+
+    const deletedCount =
+      await AdminRefreshTokenRepo.deleteByToken(refreshToken);
+
+    return { deletedCount };
+  }
+
+  /**
    * 어드민 계정 생성
    * @param data - 어드민 생성 데이터
    * @returns 생성된 어드민 정보

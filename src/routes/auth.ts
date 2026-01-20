@@ -157,4 +157,55 @@ router.get('/me', authenticate, authController.getMe);
  */
 router.post('/refresh', authController.refreshToken);
 
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     tags: [Auth]
+ *     summary: 로그아웃 (Refresh Token 폐기)
+ *     description: |
+ *       클라이언트가 보낸 Refresh Token을 서버 DB에서 삭제하여 무효화합니다.
+ *
+ *       - 토큰이 이미 만료/삭제된 경우에도 성공으로 처리합니다. (멱등)
+ *       - 이후 해당 Refresh Token으로는 /api/auth/refresh 호출이 실패합니다.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: 로그인 시 받은 리프레시 토큰
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *     responses:
+ *       200:
+ *         description: 로그아웃 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     deletedCount:
+ *                       type: integer
+ *                       description: 삭제된 Refresh Token 개수 (0 또는 1)
+ *                       example: 1
+ *       400:
+ *         description: 리프레시 토큰이 제공되지 않음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post('/logout', authController.logout);
+
 export { router as authRouter };

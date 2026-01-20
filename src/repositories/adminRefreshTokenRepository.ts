@@ -31,4 +31,10 @@ export const AdminRefreshTokenRepo = {
     });
     return row ? (row.get() as AdminRefreshTokenAttributes) : null;
   },
+
+  async deleteByToken(token: string): Promise<number> {
+    return await AdminRefreshToken.destroy({
+      where: { token },
+    });
+  },
 };

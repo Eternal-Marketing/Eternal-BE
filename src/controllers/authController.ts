@@ -112,3 +112,42 @@ export async function refreshToken(
     next(error);
   }
 }
+
+/**
+ * 로그아웃 (Refresh Token 폐기)
+ * POST /api/auth/logout
+ *
+ * 동작:
+ * - 클라이언트가 보낸 Refresh Token을 DB에서 삭제
+ * - 토큰이 이미 만료/삭제된 경우에도 성공으로 처리 (멱등)
+ *
+ * 요청 본문:
+ * { "refreshToken": "..." }
+ */
+export async function logout(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'Refresh token is required',
+      });
+      return;
+    }
+
+    const authService = new AuthService();
+    const result = await authService.logout(refreshToken);
+
+    res.status(HttpStatusCodes.OK).json({
+      status: 'success',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
