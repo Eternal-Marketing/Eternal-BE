@@ -3,6 +3,7 @@ import { hashPassword, comparePassword } from '../utils/bcrypt';
 import {
   generateAccessToken,
   generateRefreshToken,
+  verifyRefreshToken,
   TokenPayload,
 } from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
@@ -75,6 +76,67 @@ export class AuthService {
     }
 
     return admin;
+  }
+
+  /**
+   *
+   * @param refreshToken - 클라이언트가 저장하고 있던 Refresh Token (7일 유효)
+   * @returns 새로 발급된 Access Token (15분 유효)
+   * @throws AppError - Refresh Token이 유효하지 않거나 만료된 경우 401 에러
+
+   */
+  async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
+    // Refresh Token이 제공되지 않은 경우
+    if (!refreshToken) {
+      const error = new Error('Refresh token is required') as AppError;
+      error.statusCode = 401;
+      error.status = 'error';
+      throw error;
+    }
+
+    try {
+      // Refresh Token 검증
+      // - JWT 서명이 올바른지 확인 (JWT_REFRESH_SECRET으로 서명되었는지)
+      // - 토큰이 만료되지 않았는지 확인 (7일 이내인지)
+      // - 토큰 구조가 올바른지 확인
+      const payload: TokenPayload = verifyRefreshToken(refreshToken);
+
+      // Refresh Token에서 추출한 정보로 어드민 계정이 여전히 유효한지 확인
+      // (예: 계정이 비활성화되었거나 삭제되었을 수 있음)
+      const admin = await AdminRepo.findById(payload.adminId);
+
+      if (!admin || !admin.isActive) {
+        // Refresh Token은 유효하지만 어드민 계정이 비활성화된 경우
+        const error = new Error('Admin account is inactive') as AppError;
+        error.statusCode = 401;
+        error.status = 'error';
+        throw error;
+      }
+
+      // 새로운 Access Token 생성
+      // - Access Token은 15분 동안만 유효 (짧은 수명으로 보안 강화)
+      // - Refresh Token과 달리 자주 교체되어야 하므로 짧은 수명이 적절
+      const newTokenPayload: TokenPayload = {
+        adminId: admin.id,
+        email: admin.email,
+        role: admin.role,
+      };
+
+      const accessToken = generateAccessToken(newTokenPayload);
+
+      return {
+        accessToken,
+      };
+    } catch (error) {
+      // Refresh Token 검증 실패 (만료됨, 서명 불일치, 형식 오류 등)
+      // 이 경우 클라이언트는 다시 로그인해야 함
+      const appError = new Error(
+        'Invalid or expired refresh token'
+      ) as AppError;
+      appError.statusCode = 401;
+      appError.status = 'error';
+      throw appError;
+    }
   }
 
   /**
