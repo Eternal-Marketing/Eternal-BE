@@ -69,32 +69,7 @@ export async function getMe(
  * 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급
  *
  * 엔드포인트: POST /api/auth/refresh
- *
- * 사용 시나리오:
- * 1. 사용자가 로그인하여 Access Token(15분)과 Refresh Token(7일)을 받음
- * 2. 15분 후 Access Token이 만료되어 API 호출 시 401 에러 발생
- * 3. 프론트엔드가 자동으로 이 엔드포인트를 호출하여 Refresh Token 전달
- * 4. 유효한 Refresh Token이면 새로운 Access Token(15분) 발급
- * 5. 프론트엔드가 새 Access Token으로 원래 API 호출 재시도
- *
- * 요청 본문:
- * {
- *   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." // 7일 유효한 Refresh Token
- * }
- *
- * 성공 응답 (200):
- * {
- *   "status": "success",
- *   "data": {
- *     "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." // 새로 발급된 Access Token (15분 유효)
- *   }
- * }
- *
- * 실패 응답 (401):
- * {
- *   "status": "error",
- *   "message": "Invalid or expired refresh token"
- * }
+ 
  *
  * @param req - Express Request 객체
  *   - req.body.refreshToken: 클라이언트가 저장하고 있던 Refresh Token
