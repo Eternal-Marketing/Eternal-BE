@@ -1,10 +1,17 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_REFRESH_SECRET =
-  process.env.JWT_REFRESH_SECRET ||
-  'your-refresh-secret-key-change-in-production';
+// 운영 환경에서 기본값으로 토큰을 생성하면 보안 사고로 이어질 수 있으므로
+// 필수 환경 변수로 강제합니다.
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
+
+if (!JWT_REFRESH_SECRET) {
+  throw new Error('JWT_REFRESH_SECRET is required');
+}
 
 export interface TokenPayload {
   adminId: string;
