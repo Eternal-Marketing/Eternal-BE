@@ -21,6 +21,7 @@ export async function getColumns(
     const {
       status,
       categoryId,
+      categoryCode,
       tagId,
       search,
       authorId,
@@ -34,6 +35,7 @@ export async function getColumns(
     const result = await columnService.getColumns({
       status: status as ColumnStatus | undefined,
       categoryId: categoryId as string | undefined,
+      categoryCode: categoryCode as string | undefined,
       tagId: tagId as string | undefined,
       search: search as string | undefined,
       authorId: authorId as string | undefined,
@@ -196,6 +198,7 @@ export async function updateColumn(
       thumbnailUrl,
       status,
       categoryId,
+      categoryCode,
       tagIds,
     } = req.body;
 
@@ -208,6 +211,7 @@ export async function updateColumn(
       thumbnailUrl,
       status: status as ColumnStatus | undefined,
       categoryId,
+      categoryCode: categoryCode as string | undefined,
       tagIds: Array.isArray(tagIds) ? tagIds : undefined,
     });
 

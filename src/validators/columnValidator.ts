@@ -1,4 +1,5 @@
 import { ColumnStatus } from '../models/Column';
+import { CategoryCode } from '../common/types/category';
 
 export interface CreateColumnPayload {
   title: string;
@@ -8,6 +9,7 @@ export interface CreateColumnPayload {
   thumbnailUrl?: string;
   status: ColumnStatus;
   categoryId?: string;
+  categoryCode?: CategoryCode;
   tagIds?: string[];
 }
 
@@ -30,7 +32,16 @@ export function validateCreateColumnBody(body: unknown): CreateColumnResult {
   const thumbnailUrl = b.thumbnailUrl;
   const status = b.status ?? 'DRAFT';
   const categoryId = b.categoryId;
+  const categoryCode = b.categoryCode;
   const tagIds = b.tagIds;
+
+  const CATEGORY_CODES = Object.values(CategoryCode);
+  if (
+    categoryCode != null &&
+    (typeof categoryCode !== 'string' || !CATEGORY_CODES.includes(categoryCode as CategoryCode))
+  ) {
+    return { success: false, message: 'Invalid categoryCode value' };
+  }
 
   if (!title || typeof title !== 'string' || !title.trim()) {
     return { success: false, message: 'Title, slug, and content are required' };
@@ -58,6 +69,10 @@ export function validateCreateColumnBody(body: unknown): CreateColumnResult {
       thumbnailUrl: typeof thumbnailUrl === 'string' ? thumbnailUrl.trim() : undefined,
       status: status as ColumnStatus,
       categoryId: typeof categoryId === 'string' ? categoryId : undefined,
+      categoryCode:
+        typeof categoryCode === 'string' && CATEGORY_CODES.includes(categoryCode as CategoryCode)
+          ? (categoryCode as CategoryCode)
+          : undefined,
       tagIds: Array.isArray(tagIds)
         ? (tagIds.filter((id): id is string => typeof id === 'string') as string[])
         : undefined,

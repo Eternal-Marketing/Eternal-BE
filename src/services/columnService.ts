@@ -1,11 +1,17 @@
 import { ColumnRepo } from '../repositories/columnRepository';
+import { CategoryRepo } from '../repositories/categoryRepository';
 import { ColumnStatus } from '../models/Column';
 import { AppError } from '../middleware/errorHandler';
+import {
+  type CategoryCode,
+  CATEGORY_CODE_TO_SLUG,
+} from '../common/types/category';
 
 export class ColumnService {
   async getColumns(options: {
     status?: ColumnStatus;
     categoryId?: string;
+    categoryCode?: CategoryCode;
     tagId?: string;
     search?: string;
     authorId?: string;
@@ -14,7 +20,13 @@ export class ColumnService {
     orderBy?: 'createdAt' | 'publishedAt' | 'viewCount' | 'title';
     orderDirection?: 'asc' | 'desc';
   }) {
-    return await ColumnRepo.findMany(options);
+    let categoryId = options.categoryId;
+    if (options.categoryCode != null && categoryId == null) {
+      const slug = CATEGORY_CODE_TO_SLUG[options.categoryCode];
+      const category = slug ? await CategoryRepo.findBySlug(slug) : null;
+      categoryId = category?.id;
+    }
+    return await ColumnRepo.findMany({ ...options, categoryId });
   }
 
   async getColumnById(id: string) {
@@ -52,6 +64,7 @@ export class ColumnService {
     status: ColumnStatus;
     authorId: string;
     categoryId?: string;
+    categoryCode?: CategoryCode;
     tagIds?: string[];
   }) {
     // Check if slug already exists
@@ -63,11 +76,26 @@ export class ColumnService {
       throw error;
     }
 
+    let categoryId = data.categoryId;
+    if (data.categoryCode != null) {
+      const slug = CATEGORY_CODE_TO_SLUG[data.categoryCode];
+      const category = slug ? await CategoryRepo.findBySlug(slug) : null;
+      if (!category) {
+        const error = new Error('Category not found for the given categoryCode') as AppError;
+        error.statusCode = 400;
+        error.status = 'error';
+        throw error;
+      }
+      categoryId = category.id;
+    }
+
     const publishedAt =
       data.status === ColumnStatus.PUBLISHED ? new Date() : undefined;
 
+    const { categoryCode: _drop, ...rest } = data;
     return await ColumnRepo.create({
-      ...data,
+      ...rest,
+      categoryId,
       publishedAt,
     });
   }
@@ -82,6 +110,7 @@ export class ColumnService {
       thumbnailUrl?: string;
       status?: ColumnStatus;
       categoryId?: string | null;
+      categoryCode?: CategoryCode;
       tagIds?: string[];
     }
   ) {
@@ -94,9 +123,23 @@ export class ColumnService {
       throw error;
     }
 
+    const updateData = { ...data };
+    if (data.categoryCode != null) {
+      const slug = CATEGORY_CODE_TO_SLUG[data.categoryCode];
+      const category = slug ? await CategoryRepo.findBySlug(slug) : null;
+      if (!category) {
+        const error = new Error('Category not found for the given categoryCode') as AppError;
+        error.statusCode = 400;
+        error.status = 'error';
+        throw error;
+      }
+      updateData.categoryId = category.id;
+      delete (updateData as { categoryCode?: CategoryCode }).categoryCode;
+    }
+
     // If slug is being updated, check if it's available
-    if (data.slug && data.slug !== existingColumn.slug) {
-      const slugExists = await ColumnRepo.findBySlug(data.slug);
+    if (updateData.slug && updateData.slug !== existingColumn.slug) {
+      const slugExists = await ColumnRepo.findBySlug(updateData.slug);
       if (slugExists) {
         const error = new Error('Slug already exists') as AppError;
         error.statusCode = 409;
@@ -108,14 +151,14 @@ export class ColumnService {
     // If status is being changed to PUBLISHED and wasn't published before
     let publishedAt = existingColumn.publishedAt;
     if (
-      data.status === ColumnStatus.PUBLISHED &&
+      updateData.status === ColumnStatus.PUBLISHED &&
       existingColumn.status !== ColumnStatus.PUBLISHED
     ) {
       publishedAt = new Date();
     }
 
     return await ColumnRepo.update(id, {
-      ...data,
+      ...updateData,
       publishedAt,
     });
   }
