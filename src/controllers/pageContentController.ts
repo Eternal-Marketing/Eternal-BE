@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { PageContentService } from '../services/pageContentService';
 import { ContentType } from '../models/PageContent';
 import HttpStatusCodes from '../common/constants/HttpStatusCodes';
+import { validateUpsertPageContentBody } from '../validators/pageContentValidator';
 
 /**
  * 페이지 컨텐츠 목록 조회
@@ -96,24 +97,17 @@ export async function upsertContent(
   next: NextFunction
 ) {
   try {
-    const { key, title, content, type, isActive } = req.body;
-
-    if (!key || !content || !type) {
+    const validation = validateUpsertPageContentBody(req.body);
+    if (!validation.success) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'Key, content, and type are required',
+        message: validation.message,
       });
       return;
     }
 
     const pageContentService = new PageContentService();
-    const result = await pageContentService.upsertContent({
-      key,
-      title,
-      content,
-      type: type as ContentType,
-      isActive,
-    });
+    const result = await pageContentService.upsertContent(validation.payload);
 
     res.status(HttpStatusCodes.OK).json({
       status: 'success',
