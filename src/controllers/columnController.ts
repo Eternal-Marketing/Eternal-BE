@@ -7,6 +7,7 @@ import {
   validateCreateColumnBody,
   validateUpdateStatusBody,
 } from '../validators/columnValidator';
+import type { CategoryCode } from '../common/types/category';
 
 /**
  * 칼럼 목록 조회
@@ -35,7 +36,7 @@ export async function getColumns(
     const result = await columnService.getColumns({
       status: status as ColumnStatus | undefined,
       categoryId: categoryId as string | undefined,
-      categoryCode: categoryCode as string | undefined,
+      categoryCode: categoryCode as CategoryCode | undefined,
       tagId: tagId as string | undefined,
       search: search as string | undefined,
       authorId: authorId as string | undefined,
@@ -211,7 +212,7 @@ export async function updateColumn(
       thumbnailUrl,
       status: status as ColumnStatus | undefined,
       categoryId,
-      categoryCode: categoryCode as string | undefined,
+      categoryCode: categoryCode as CategoryCode | undefined,
       tagIds: Array.isArray(tagIds) ? tagIds : undefined,
     });
 
