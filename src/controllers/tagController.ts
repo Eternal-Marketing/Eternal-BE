@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TagService } from '../services/tagService';
 import HttpStatusCodes from '../common/constants/HttpStatusCodes';
+import { validateCreateTagBody } from '../validators/tagValidator';
 
 /**
  * 태그 목록 조회
@@ -54,18 +55,17 @@ export async function createTag(
   next: NextFunction
 ) {
   try {
-    const { name, slug } = req.body;
-
-    if (!name || !slug) {
+    const validation = validateCreateTagBody(req.body);
+    if (!validation.success) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'Name and slug are required',
+        message: validation.message,
       });
       return;
     }
 
     const tagService = new TagService();
-    const tag = await tagService.createTag({ name, slug });
+    const tag = await tagService.createTag(validation.payload);
 
     res.status(HttpStatusCodes.CREATED).json({
       status: 'success',
