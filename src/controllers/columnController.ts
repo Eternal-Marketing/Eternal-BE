@@ -3,6 +3,10 @@ import { ColumnService } from '../services/columnService';
 import { AuthRequest } from '../middleware/auth';
 import { ColumnStatus } from '../models/Column';
 import HttpStatusCodes from '../common/constants/HttpStatusCodes';
+import {
+  validateCreateColumnBody,
+  validateUpdateStatusBody,
+} from '../validators/columnValidator';
 
 /**
  * 칼럼 목록 조회
@@ -141,36 +145,19 @@ export async function createColumn(
       return;
     }
 
-    const {
-      title,
-      slug,
-      content,
-      excerpt,
-      thumbnailUrl,
-      status = 'DRAFT',
-      categoryId,
-      tagIds,
-    } = req.body;
-
-    if (!title || !slug || !content) {
+    const validation = validateCreateColumnBody(req.body);
+    if (!validation.success) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'Title, slug, and content are required',
+        message: validation.message,
       });
       return;
     }
 
     const columnService = new ColumnService();
     const column = await columnService.createColumn({
-      title,
-      slug,
-      content,
-      excerpt,
-      thumbnailUrl,
-      status: status as ColumnStatus,
+      ...validation.payload,
       authorId: req.admin.adminId,
-      categoryId,
-      tagIds: Array.isArray(tagIds) ? tagIds : undefined,
     });
 
     res.status(HttpStatusCodes.CREATED).json({
@@ -287,18 +274,17 @@ export async function updateStatus(
     }
 
     const { id } = req.params;
-    const { status } = req.body;
-
-    if (!status) {
+    const statusValidation = validateUpdateStatusBody(req.body);
+    if (!statusValidation.success) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'Status is required',
+        message: statusValidation.message,
       });
       return;
     }
 
     const columnService = new ColumnService();
-    const column = await columnService.updateStatus(id, status as ColumnStatus);
+    const column = await columnService.updateStatus(id, statusValidation.status);
 
     if (!column) {
       res.status(HttpStatusCodes.NOT_FOUND).json({
