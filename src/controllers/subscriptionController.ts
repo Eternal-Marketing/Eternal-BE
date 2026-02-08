@@ -2,10 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 import { SubscriptionService } from '../services/subscriptionService';
 import { SubscriptionStatus } from '../models/Subscription';
 import HttpStatusCodes from '../common/constants/HttpStatusCodes';
+import {
+  validateSubscriptionForm,
+  validateSubscriptionStatusBody,
+} from '../validators/subscriptionValidator';
 
 /**
- * 상담신청 생성 (공개 API)
  * POST /api/subscriptions
+ * Body: SubscriptionFormPayload (name, email 필수 / 나머지 선택)
  */
 export async function createSubscription(
   req: Request,
@@ -13,23 +17,20 @@ export async function createSubscription(
   next: NextFunction
 ) {
   try {
-    const { name, email, phone, message } = req.body;
+    const result = validateSubscriptionForm(req.body);
 
-    if (!name || !email) {
+    if (!result.success) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'Name and email are required',
+        message: result.message,
       });
       return;
     }
 
     const subscriptionService = new SubscriptionService();
-    const subscription = await subscriptionService.createSubscription({
-      name,
-      email,
-      phone,
-      message,
-    });
+    const subscription = await subscriptionService.createSubscription(
+      result.payload
+    );
 
     res.status(HttpStatusCodes.CREATED).json({
       status: 'success',
@@ -126,12 +127,11 @@ export async function updateSubscriptionStatus(
 ) {
   try {
     const { id } = req.params;
-    const { status } = req.body;
-
-    if (!status || !Object.values(SubscriptionStatus).includes(status)) {
+    const statusValidation = validateSubscriptionStatusBody(req.body);
+    if (!statusValidation.success) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'Valid status is required',
+        message: statusValidation.message,
       });
       return;
     }
@@ -139,7 +139,7 @@ export async function updateSubscriptionStatus(
     const subscriptionService = new SubscriptionService();
     const subscription = await subscriptionService.updateSubscriptionStatus(
       id,
-      status as SubscriptionStatus
+      statusValidation.status
     );
 
     res.status(HttpStatusCodes.OK).json({
