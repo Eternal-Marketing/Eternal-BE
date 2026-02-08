@@ -10,7 +10,9 @@ const router = Router();
  *   post:
  *     tags: [Subscriptions]
  *     summary: 상담신청 생성 (공개 API)
- *     description: 사용자가 상담신청을 제출합니다. 자동으로 가입자로 등록됩니다.
+ *     description: |
+ *       사용자가 상담신청을 제출합니다. 자동으로 가입자로 등록됩니다.
+ *       요청 body는 camelCase(SubscriptionFormPayload)를 사용합니다.
  *     requestBody:
  *       required: true
  *       content:
@@ -23,22 +25,68 @@ const router = Router();
  *             properties:
  *               name:
  *                 type: string
+ *                 description: 담당자명
  *                 example: 홍길동
  *               email:
  *                 type: string
  *                 format: email
+ *                 description: 이메일
  *                 example: hong@example.com
  *               phone:
  *                 type: string
- *                 example: 010-1234-5678
+ *                 description: 연락처
+ *                 example: "010-1234-5678"
+ *               companyName:
+ *                 type: string
+ *                 description: 업체명
+ *               industry:
+ *                 type: string
+ *                 enum: [RESTAURANT, HOSPITAL, ACADEMY, BEAUTY_HEALTH, SHOPPING_MALL, SERVICE, OTHER]
+ *                 description: 업종 (단일 선택)
+ *               industryOther:
+ *                 type: string
+ *                 description: 업종 '기타'일 때 직접 입력
+ *               concerns:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [SALES_INCREASE, CUSTOMER_ACQUISITION, BRAND_AWARENESS, EFFICIENCY_AND_DIRECTION]
+ *                 maxItems: 2
+ *                 description: 고민 영역 (최대 2개)
+ *               marketingStatus:
+ *                 type: string
+ *                 enum: [NONE, INTERNAL, OUTSOURCING, SUSPENDED]
+ *                 description: 현재 마케팅 진행 상태
+ *               interestedChannels:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [NAVER_BLOG, NAVER_CAFE, NAVER_SMARTPLACE, INSTAGRAM, YOUTUBE, SHORTFORM_ADS, OTHER]
+ *                 description: 관심 마케팅 채널 (복수)
+ *               channelsOther:
+ *                 type: string
+ *                 description: 관심 채널 '기타'일 때 직접 입력
  *               message:
  *                 type: string
+ *                 description: 추가 공유 사항
  *                 example: 상담 신청합니다.
+ *               region:
+ *                 type: string
+ *                 description: 지역
+ *               contactTimeSlots:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: ["09_12", "12_15", "15_18", "18_00", "ANY", "CUSTOM"]
+ *                 description: 연락 가능 시간대 (복수)
+ *               contactTimeOther:
+ *                 type: string
+ *                 description: 연락 가능 '특정시간대'일 때 직접 입력
  *     responses:
  *       201:
  *         description: 상담신청 성공
  *       400:
- *         description: 잘못된 요청
+ *         description: 잘못된 요청 (필수값 누락, 이넘 오류, concerns 2개 초과 등)
  */
 router.post('/', subscriptionController.createSubscription);
 

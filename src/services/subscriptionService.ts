@@ -1,8 +1,6 @@
 import { SubscriptionRepo } from '../repositories/subscriptionRepository';
-import {
-  SubscriptionCreationAttributes,
-  SubscriptionStatus,
-} from '../models/Subscription';
+import { SubscriptionStatus } from '../models/Subscription';
+import type { SubscriptionFormPayload } from '../common/types/subscription';
 import { AppError } from '../middleware/errorHandler';
 import ENV from '../common/constants/ENV';
 import Logger from '../utils/logger';
@@ -14,15 +12,28 @@ import Logger from '../utils/logger';
 export class SubscriptionService {
   /**
    * 상담신청 생성 (공개 API)
-   * 사용자가 홈페이지에서 상담신청을 제출하면 자동으로 PENDING 상태로 생성됨
-   * @param data - 상담신청 정보 (이름, 이메일, 전화번호, 메시지)
+   * 클라이언트 폼 payload를 받아 PENDING 상태로 저장
+   * @param data - 상담신청 폼 payload (SubscriptionFormPayload)
    * @returns 생성된 상담신청 정보
    */
-  async createSubscription(data: SubscriptionCreationAttributes) {
+  async createSubscription(data: SubscriptionFormPayload) {
     Logger.debug('상담신청 생성 시작', { email: data.email, name: data.name });
 
     const subscription = await SubscriptionRepo.create({
-      ...data,
+      name: data.name,
+      email: data.email,
+      phone: data.phone ?? undefined,
+      message: data.message ?? undefined,
+      companyName: data.companyName ?? undefined,
+      industry: data.industry ?? undefined,
+      industryOther: data.industryOther ?? undefined,
+      concerns: data.concerns ?? undefined,
+      marketingStatus: data.marketingStatus ?? undefined,
+      interestedChannels: data.interestedChannels ?? undefined,
+      channelsOther: data.channelsOther ?? undefined,
+      region: data.region ?? undefined,
+      contactTimeSlots: data.contactTimeSlots ?? undefined,
+      contactTimeOther: data.contactTimeOther ?? undefined,
       status: SubscriptionStatus.PENDING,
     });
 

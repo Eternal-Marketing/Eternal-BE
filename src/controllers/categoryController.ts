@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { CategoryService } from '../services/categoryService';
 import HttpStatusCodes from '../common/constants/HttpStatusCodes';
+import {
+  validateCreateCategoryBody,
+  validateUpdateCategoryBody,
+} from '../validators/categoryValidator';
 
 /**
  * 카테고리 목록 조회
@@ -60,24 +64,17 @@ export async function createCategory(
   next: NextFunction
 ) {
   try {
-    const { name, slug, description, parentId, order } = req.body;
-
-    if (!name || !slug) {
+    const validation = validateCreateCategoryBody(req.body);
+    if (!validation.success) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'Name and slug are required',
+        message: validation.message,
       });
       return;
     }
 
     const categoryService = new CategoryService();
-    const category = await categoryService.createCategory({
-      name,
-      slug,
-      description,
-      parentId: parentId || null,
-      order: order ? parseInt(order) : undefined,
-    });
+    const category = await categoryService.createCategory(validation.payload);
 
     res.status(HttpStatusCodes.CREATED).json({
       status: 'success',
@@ -99,17 +96,17 @@ export async function updateCategory(
 ) {
   try {
     const { id } = req.params;
-    const { name, slug, description, parentId, order, isActive } = req.body;
+    const validation = validateUpdateCategoryBody(req.body);
+    if (!validation.success) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: validation.message,
+      });
+      return;
+    }
 
     const categoryService = new CategoryService();
-    const category = await categoryService.updateCategory(id, {
-      name,
-      slug,
-      description,
-      parentId: parentId !== undefined ? parentId : undefined,
-      order: order ? parseInt(order) : undefined,
-      isActive,
-    });
+    const category = await categoryService.updateCategory(id, validation.payload);
 
     if (!category) {
       res.status(HttpStatusCodes.NOT_FOUND).json({

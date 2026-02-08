@@ -2,6 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/authService';
 import { AuthRequest } from '../middleware/auth';
 import HttpStatusCodes from '../common/constants/HttpStatusCodes';
+import {
+  validateLoginBody,
+  validateRefreshTokenBody,
+} from '../validators/authValidator';
 
 /**
  * 어드민 로그인
@@ -13,18 +17,17 @@ export async function login(
   next: NextFunction
 ): Promise<void> {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
+    const validation = validateLoginBody(req.body);
+    if (!validation.success) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'Email and password are required',
+        message: validation.message,
       });
       return;
     }
 
     const authService = new AuthService();
-    const result = await authService.login(email, password);
+    const result = await authService.login(validation.email, validation.password);
 
     res.status(HttpStatusCodes.OK).json({
       status: 'success',
@@ -82,21 +85,17 @@ export async function refreshToken(
   next: NextFunction
 ): Promise<void> {
   try {
-    // 요청 본문에서 Refresh Token 추출
-    const { refreshToken } = req.body;
-
-    // Refresh Token이 제공되지 않은 경우
-    if (!refreshToken) {
+    const validation = validateRefreshTokenBody(req.body);
+    if (!validation.success) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'Refresh token is required',
+        message: validation.message,
       });
       return;
     }
 
-    // AuthService를 통해 Refresh Token 검증 및 새 Access Token 발급
     const authService = new AuthService();
-    const result = await authService.refreshToken(refreshToken);
+    const result = await authService.refreshToken(validation.refreshToken);
 
     // 새로 발급된 Access Token을 클라이언트에 반환
     // 클라이언트는 이 토큰을 저장하고 이후 API 호출에 사용
@@ -130,18 +129,17 @@ export async function logout(
   next: NextFunction
 ): Promise<void> {
   try {
-    const { refreshToken } = req.body;
-
-    if (!refreshToken) {
+    const validation = validateRefreshTokenBody(req.body);
+    if (!validation.success) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'Refresh token is required',
+        message: validation.message,
       });
       return;
     }
 
     const authService = new AuthService();
-    const result = await authService.logout(refreshToken);
+    const result = await authService.logout(validation.refreshToken);
 
     res.status(HttpStatusCodes.OK).json({
       status: 'success',
