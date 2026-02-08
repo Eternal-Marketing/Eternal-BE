@@ -45,7 +45,7 @@ module.exports = {
       console.log('⚠️  Admin account already exists');
     }
 
-    // Create default categories
+    // Create default categories (5개 고정, 칼럼 작성 시 categoryCode 이넘과 slug로 매칭)
     const categories = [
       { name: '바이럴 마케팅', slug: 'viral-marketing' },
       { name: '퍼포먼스 마케팅', slug: 'performance-marketing' },
