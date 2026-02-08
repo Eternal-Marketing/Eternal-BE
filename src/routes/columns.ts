@@ -36,6 +36,12 @@ const router = Router();
  *           type: string
  *         description: 카테고리 ID
  *       - in: query
+ *         name: categoryCode
+ *         schema:
+ *           type: string
+ *           enum: [VIRAL_MARKETING, PERFORMANCE_MARKETING, SNS_MARKETING, VIDEO_CONTENT_MARKETING, ETERNAL_MARKETING]
+ *         description: 고정 카테고리 코드 (5개 중 하나, categoryId 대신 사용 가능)
+ *       - in: query
  *         name: tagId
  *         schema:
  *           type: string
@@ -178,6 +184,11 @@ router.get('/slug/:slug', columnController.getColumnBySlug);
  *                 default: DRAFT
  *               categoryId:
  *                 type: string
+ *                 description: 카테고리 ID (선택)
+ *               categoryCode:
+ *                 type: string
+ *                 enum: [VIRAL_MARKETING, PERFORMANCE_MARKETING, SNS_MARKETING, VIDEO_CONTENT_MARKETING, ETERNAL_MARKETING]
+ *                 description: 고정 카테고리 코드 5개 중 하나 (categoryId 대신 사용 가능)
  *               tagIds:
  *                 type: array
  *                 items:
@@ -223,6 +234,10 @@ router.post('/', authenticate, columnController.createColumn);
  *                 enum: [DRAFT, PUBLISHED, PRIVATE]
  *               categoryId:
  *                 type: string
+ *               categoryCode:
+ *                 type: string
+ *                 enum: [VIRAL_MARKETING, PERFORMANCE_MARKETING, SNS_MARKETING, VIDEO_CONTENT_MARKETING, ETERNAL_MARKETING]
+ *                 description: 고정 카테고리 코드 5개 중 하나 (categoryId 대신 사용 가능)
  *               tagIds:
  *                 type: array
  *                 items:
