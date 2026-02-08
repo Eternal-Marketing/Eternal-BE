@@ -18,6 +18,7 @@
     "db:migrate:undo:all": "npx sequelize-cli db:migrate:undo:all",
     "db:seed": "npx sequelize-cli db:seed:all",
     "db:seed:undo": "npx sequelize-cli db:seed:undo:all",
+    "db:seed:categories": "npx sequelize-cli db:seed --seed 20260209130000-seed-category-5.js",
     "db:reset": "npm run db:migrate:undo:all && npm run db:migrate && npm run db:seed"
   },
   "keywords": [
