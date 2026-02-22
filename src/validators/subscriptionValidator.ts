@@ -31,13 +31,19 @@ function normalizeBody(body: Record<string, unknown>) {
   };
 }
 
-function isEnumValue<T extends string>(value: unknown, allowed: readonly T[]): value is T {
+function isEnumValue<T extends string>(
+  value: unknown,
+  allowed: readonly T[]
+): value is T {
   return typeof value === 'string' && allowed.includes(value as T);
 }
 
-function isEnumArray<T extends string>(value: unknown, allowed: readonly T[]): value is T[] {
+function isEnumArray<T extends string>(
+  value: unknown,
+  allowed: readonly T[]
+): value is T[] {
   if (!Array.isArray(value)) return false;
-  return value.every((v) => typeof v === 'string' && allowed.includes(v as T));
+  return value.every(v => typeof v === 'string' && allowed.includes(v as T));
 }
 
 /**
@@ -46,19 +52,27 @@ function isEnumArray<T extends string>(value: unknown, allowed: readonly T[]): v
  */
 export function validateSubscriptionForm(body: unknown): ValidationResult {
   const raw = normalizeBody(
-    typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {}
+    typeof body === 'object' && body !== null
+      ? (body as Record<string, unknown>)
+      : {}
   );
 
   if (!raw.name?.trim() || !raw.email?.trim()) {
     return { success: false, message: 'Name and email are required' };
   }
 
-  if (raw.industry != null && !isEnumValue(raw.industry, Object.values(SubscriptionIndustry))) {
+  if (
+    raw.industry != null &&
+    !isEnumValue(raw.industry, Object.values(SubscriptionIndustry))
+  ) {
     return { success: false, message: 'Invalid industry value' };
   }
   if (
     raw.marketingStatus != null &&
-    !isEnumValue(raw.marketingStatus, Object.values(SubscriptionMarketingStatus))
+    !isEnumValue(
+      raw.marketingStatus,
+      Object.values(SubscriptionMarketingStatus)
+    )
   ) {
     return { success: false, message: 'Invalid marketingStatus value' };
   }
@@ -78,7 +92,10 @@ export function validateSubscriptionForm(body: unknown): ValidationResult {
   }
   if (
     raw.contactTimeSlots != null &&
-    !isEnumArray(raw.contactTimeSlots, Object.values(SubscriptionContactTimeSlot))
+    !isEnumArray(
+      raw.contactTimeSlots,
+      Object.values(SubscriptionContactTimeSlot)
+    )
   ) {
     return { success: false, message: 'Invalid contactTimeSlots value' };
   }
@@ -87,18 +104,33 @@ export function validateSubscriptionForm(body: unknown): ValidationResult {
     name: raw.name.trim(),
     email: raw.email.trim(),
     phone: raw.phone?.trim(),
-    companyName: typeof raw.companyName === 'string' ? raw.companyName.trim() : undefined,
+    companyName:
+      typeof raw.companyName === 'string' ? raw.companyName.trim() : undefined,
     industry: raw.industry as SubscriptionIndustry | undefined,
-    industryOther: typeof raw.industryOther === 'string' ? raw.industryOther.trim() : undefined,
+    industryOther:
+      typeof raw.industryOther === 'string'
+        ? raw.industryOther.trim()
+        : undefined,
     concerns: raw.concerns as SubscriptionConcern[] | undefined,
-    marketingStatus: raw.marketingStatus as SubscriptionMarketingStatus | undefined,
-    interestedChannels: raw.interestedChannels as SubscriptionChannel[] | undefined,
-    channelsOther: typeof raw.channelsOther === 'string' ? raw.channelsOther.trim() : undefined,
+    marketingStatus: raw.marketingStatus as
+      | SubscriptionMarketingStatus
+      | undefined,
+    interestedChannels: raw.interestedChannels as
+      | SubscriptionChannel[]
+      | undefined,
+    channelsOther:
+      typeof raw.channelsOther === 'string'
+        ? raw.channelsOther.trim()
+        : undefined,
     message: typeof raw.message === 'string' ? raw.message.trim() : undefined,
     region: typeof raw.region === 'string' ? raw.region.trim() : undefined,
-    contactTimeSlots: raw.contactTimeSlots as SubscriptionContactTimeSlot[] | undefined,
+    contactTimeSlots: raw.contactTimeSlots as
+      | SubscriptionContactTimeSlot[]
+      | undefined,
     contactTimeOther:
-      typeof raw.contactTimeOther === 'string' ? raw.contactTimeOther.trim() : undefined,
+      typeof raw.contactTimeOther === 'string'
+        ? raw.contactTimeOther.trim()
+        : undefined,
   };
 
   return { success: true, payload };
@@ -113,7 +145,10 @@ const SUBSCRIPTION_STATUSES = Object.values(SubscriptionStatus);
 export function validateSubscriptionStatusBody(
   body: unknown
 ): SubscriptionStatusValidationResult {
-  const b = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+  const b =
+    typeof body === 'object' && body !== null
+      ? (body as Record<string, unknown>)
+      : {};
   const status = b.status;
 
   if (!status || typeof status !== 'string') {

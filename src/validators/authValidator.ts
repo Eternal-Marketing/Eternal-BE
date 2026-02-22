@@ -7,7 +7,10 @@ export type RefreshTokenValidationResult =
   | { success: false; message: string };
 
 export function validateLoginBody(body: unknown): LoginValidationResult {
-  const b = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+  const b =
+    typeof body === 'object' && body !== null
+      ? (body as Record<string, unknown>)
+      : {};
   const email = b.email;
   const password = b.password;
 
@@ -21,11 +24,20 @@ export function validateLoginBody(body: unknown): LoginValidationResult {
   return { success: true, email: email.trim(), password: password.trim() };
 }
 
-export function validateRefreshTokenBody(body: unknown): RefreshTokenValidationResult {
-  const b = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+export function validateRefreshTokenBody(
+  body: unknown
+): RefreshTokenValidationResult {
+  const b =
+    typeof body === 'object' && body !== null
+      ? (body as Record<string, unknown>)
+      : {};
   const refreshToken = b.refreshToken;
 
-  if (!refreshToken || typeof refreshToken !== 'string' || !refreshToken.trim()) {
+  if (
+    !refreshToken ||
+    typeof refreshToken !== 'string' ||
+    !refreshToken.trim()
+  ) {
     return { success: false, message: 'Refresh token is required' };
   }
 

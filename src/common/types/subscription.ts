@@ -1,3 +1,4 @@
+/** 업종 (단일 선택) */
 export enum SubscriptionIndustry {
   RESTAURANT = 'RESTAURANT', // 음식점
   HOSPITAL = 'HOSPITAL', // 병원·의원
