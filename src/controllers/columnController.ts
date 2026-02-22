@@ -23,7 +23,6 @@ export async function getColumns(
       status,
       categoryId,
       categoryCode,
-      tagId,
       search,
       authorId,
       page = '1',
@@ -37,7 +36,6 @@ export async function getColumns(
       status: status as ColumnStatus | undefined,
       categoryId: categoryId as string | undefined,
       categoryCode: categoryCode as CategoryCode | undefined,
-      tagId: tagId as string | undefined,
       search: search as string | undefined,
       authorId: authorId as string | undefined,
       page: parseInt(page as string),
@@ -200,7 +198,6 @@ export async function updateColumn(
       status,
       categoryId,
       categoryCode,
-      tagIds,
     } = req.body;
 
     const columnService = new ColumnService();
@@ -213,7 +210,6 @@ export async function updateColumn(
       status: status as ColumnStatus | undefined,
       categoryId,
       categoryCode: categoryCode as CategoryCode | undefined,
-      tagIds: Array.isArray(tagIds) ? tagIds : undefined,
     });
 
     if (!column) {
@@ -289,7 +285,10 @@ export async function updateStatus(
     }
 
     const columnService = new ColumnService();
-    const column = await columnService.updateStatus(id, statusValidation.status);
+    const column = await columnService.updateStatus(
+      id,
+      statusValidation.status
+    );
 
     if (!column) {
       res.status(HttpStatusCodes.NOT_FOUND).json({
