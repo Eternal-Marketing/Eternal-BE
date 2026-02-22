@@ -10,7 +10,6 @@ export interface CreateColumnPayload {
   status: ColumnStatus;
   categoryId?: string;
   categoryCode?: CategoryCode;
-  tagIds?: string[];
 }
 
 export type CreateColumnResult =
@@ -24,7 +23,10 @@ export type UpdateStatusResult =
 const COLUMN_STATUSES = Object.values(ColumnStatus);
 
 export function validateCreateColumnBody(body: unknown): CreateColumnResult {
-  const b = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+  const b =
+    typeof body === 'object' && body !== null
+      ? (body as Record<string, unknown>)
+      : {};
   const title = b.title;
   const slug = b.slug;
   const content = b.content;
@@ -33,12 +35,12 @@ export function validateCreateColumnBody(body: unknown): CreateColumnResult {
   const status = b.status ?? 'DRAFT';
   const categoryId = b.categoryId;
   const categoryCode = b.categoryCode;
-  const tagIds = b.tagIds;
 
   const CATEGORY_CODES = Object.values(CategoryCode);
   if (
     categoryCode != null &&
-    (typeof categoryCode !== 'string' || !CATEGORY_CODES.includes(categoryCode as CategoryCode))
+    (typeof categoryCode !== 'string' ||
+      !CATEGORY_CODES.includes(categoryCode as CategoryCode))
   ) {
     return { success: false, message: 'Invalid categoryCode value' };
   }
@@ -66,22 +68,24 @@ export function validateCreateColumnBody(body: unknown): CreateColumnResult {
       slug: slug.trim(),
       content,
       excerpt: typeof excerpt === 'string' ? excerpt.trim() : undefined,
-      thumbnailUrl: typeof thumbnailUrl === 'string' ? thumbnailUrl.trim() : undefined,
+      thumbnailUrl:
+        typeof thumbnailUrl === 'string' ? thumbnailUrl.trim() : undefined,
       status: status as ColumnStatus,
       categoryId: typeof categoryId === 'string' ? categoryId : undefined,
       categoryCode:
-        typeof categoryCode === 'string' && CATEGORY_CODES.includes(categoryCode as CategoryCode)
+        typeof categoryCode === 'string' &&
+        CATEGORY_CODES.includes(categoryCode as CategoryCode)
           ? (categoryCode as CategoryCode)
           : undefined,
-      tagIds: Array.isArray(tagIds)
-        ? (tagIds.filter((id): id is string => typeof id === 'string') as string[])
-        : undefined,
     },
   };
 }
 
 export function validateUpdateStatusBody(body: unknown): UpdateStatusResult {
-  const b = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+  const b =
+    typeof body === 'object' && body !== null
+      ? (body as Record<string, unknown>)
+      : {};
   const status = b.status;
 
   if (!status || typeof status !== 'string') {

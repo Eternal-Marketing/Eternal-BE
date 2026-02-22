@@ -106,7 +106,10 @@ export async function updateCategory(
     }
 
     const categoryService = new CategoryService();
-    const category = await categoryService.updateCategory(id, validation.payload);
+    const category = await categoryService.updateCategory(
+      id,
+      validation.payload
+    );
 
     if (!category) {
       res.status(HttpStatusCodes.NOT_FOUND).json({

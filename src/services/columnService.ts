@@ -12,7 +12,6 @@ export class ColumnService {
     status?: ColumnStatus;
     categoryId?: string;
     categoryCode?: CategoryCode;
-    tagId?: string;
     search?: string;
     authorId?: string;
     page?: number;
@@ -65,7 +64,6 @@ export class ColumnService {
     authorId: string;
     categoryId?: string;
     categoryCode?: CategoryCode;
-    tagIds?: string[];
   }) {
     // Check if slug already exists
     const existingColumn = await ColumnRepo.findBySlug(data.slug);
@@ -81,7 +79,9 @@ export class ColumnService {
       const slug = CATEGORY_CODE_TO_SLUG[data.categoryCode];
       const category = slug ? await CategoryRepo.findBySlug(slug) : null;
       if (!category) {
-        const error = new Error('Category not found for the given categoryCode') as AppError;
+        const error = new Error(
+          'Category not found for the given categoryCode'
+        ) as AppError;
         error.statusCode = 400;
         error.status = 'error';
         throw error;
@@ -111,7 +111,6 @@ export class ColumnService {
       status?: ColumnStatus;
       categoryId?: string | null;
       categoryCode?: CategoryCode;
-      tagIds?: string[];
     }
   ) {
     // Check if column exists
@@ -128,7 +127,9 @@ export class ColumnService {
       const slug = CATEGORY_CODE_TO_SLUG[data.categoryCode];
       const category = slug ? await CategoryRepo.findBySlug(slug) : null;
       if (!category) {
-        const error = new Error('Category not found for the given categoryCode') as AppError;
+        const error = new Error(
+          'Category not found for the given categoryCode'
+        ) as AppError;
         error.statusCode = 400;
         error.status = 'error';
         throw error;

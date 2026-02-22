@@ -14,8 +14,13 @@ export type UpsertPageContentResult =
 
 const CONTENT_TYPES = Object.values(ContentType);
 
-export function validateUpsertPageContentBody(body: unknown): UpsertPageContentResult {
-  const b = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+export function validateUpsertPageContentBody(
+  body: unknown
+): UpsertPageContentResult {
+  const b =
+    typeof body === 'object' && body !== null
+      ? (body as Record<string, unknown>)
+      : {};
   const key = b.key;
   const content = b.content;
   const type = b.type;
@@ -28,7 +33,11 @@ export function validateUpsertPageContentBody(body: unknown): UpsertPageContentR
   if (!content || typeof content !== 'string') {
     return { success: false, message: 'Key, content, and type are required' };
   }
-  if (!type || typeof type !== 'string' || !CONTENT_TYPES.includes(type as ContentType)) {
+  if (
+    !type ||
+    typeof type !== 'string' ||
+    !CONTENT_TYPES.includes(type as ContentType)
+  ) {
     return { success: false, message: 'Key, content, and type are required' };
   }
 

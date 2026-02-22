@@ -9,7 +9,6 @@ import { healthRouter } from './routes/health';
 import { authRouter } from './routes/auth';
 import { columnRouter } from './routes/columns';
 import { categoryRouter } from './routes/categories';
-import { tagRouter } from './routes/tags';
 import { pageContentRouter } from './routes/pageContent';
 import { mediaRouter } from './routes/media';
 import { subscriptionRouter } from './routes/subscriptions';
@@ -54,7 +53,6 @@ app.use('/health', healthRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/columns', columnRouter);
 app.use('/api/categories', categoryRouter);
-app.use('/api/tags', tagRouter);
 app.use('/api/page-content', pageContentRouter);
 app.use('/api/media', mediaRouter);
 app.use('/api/subscriptions', subscriptionRouter);
@@ -70,7 +68,6 @@ app.get('/', (_req, res) => {
       auth: '/api/auth',
       columns: '/api/columns',
       categories: '/api/categories',
-      tags: '/api/tags',
       pageContent: '/api/page-content',
       media: '/api/media',
       subscriptions: '/api/subscriptions',

@@ -27,7 +27,10 @@ export async function login(
     }
 
     const authService = new AuthService();
-    const result = await authService.login(validation.email, validation.password);
+    const result = await authService.login(
+      validation.email,
+      validation.password
+    );
 
     res.status(HttpStatusCodes.OK).json({
       status: 'success',

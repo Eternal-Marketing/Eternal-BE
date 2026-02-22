@@ -17,7 +17,9 @@ const options: swaggerJsdoc.Options = {
       {
         url: ENV.BaseUrl,
         description:
-          ENV.NodeEnv === 'production' ? 'Production server' : 'Development server',
+          ENV.NodeEnv === 'production'
+            ? 'Production server'
+            : 'Development server',
       },
       ...(ENV.NodeEnv !== 'production'
         ? [
@@ -192,29 +194,6 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
-        Tag: {
-          type: 'object',
-          properties: {
-            id: {
-              type: 'string',
-              format: 'uuid',
-            },
-            name: {
-              type: 'string',
-            },
-            slug: {
-              type: 'string',
-            },
-            createdAt: {
-              type: 'string',
-              format: 'date-time',
-            },
-            updatedAt: {
-              type: 'string',
-              format: 'date-time',
-            },
-          },
-        },
         Media: {
           type: 'object',
           properties: {
@@ -299,10 +278,6 @@ const options: swaggerJsdoc.Options = {
       {
         name: 'Categories',
         description: '카테고리 관리 API',
-      },
-      {
-        name: 'Tags',
-        description: '태그 관리 API',
       },
       {
         name: 'Page Content',

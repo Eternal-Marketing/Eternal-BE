@@ -33,8 +33,13 @@ function parseOrder(value: unknown): number | undefined {
   return undefined;
 }
 
-export function validateCreateCategoryBody(body: unknown): CreateCategoryResult {
-  const b = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+export function validateCreateCategoryBody(
+  body: unknown
+): CreateCategoryResult {
+  const b =
+    typeof body === 'object' && body !== null
+      ? (body as Record<string, unknown>)
+      : {};
   const name = b.name;
   const slug = b.slug;
   const description = b.description;
@@ -53,7 +58,8 @@ export function validateCreateCategoryBody(body: unknown): CreateCategoryResult 
     payload: {
       name: name.trim(),
       slug: slug.trim(),
-      description: typeof description === 'string' ? description.trim() : undefined,
+      description:
+        typeof description === 'string' ? description.trim() : undefined,
       parentId:
         parentId === undefined || parentId === null || parentId === ''
           ? null
@@ -63,8 +69,13 @@ export function validateCreateCategoryBody(body: unknown): CreateCategoryResult 
   };
 }
 
-export function validateUpdateCategoryBody(body: unknown): UpdateCategoryResult {
-  const b = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+export function validateUpdateCategoryBody(
+  body: unknown
+): UpdateCategoryResult {
+  const b =
+    typeof body === 'object' && body !== null
+      ? (body as Record<string, unknown>)
+      : {};
   const name = b.name;
   const slug = b.slug;
   const description = b.description;
@@ -77,7 +88,8 @@ export function validateUpdateCategoryBody(body: unknown): UpdateCategoryResult 
     payload: {
       name: typeof name === 'string' ? name.trim() : undefined,
       slug: typeof slug === 'string' ? slug.trim() : undefined,
-      description: typeof description === 'string' ? description.trim() : undefined,
+      description:
+        typeof description === 'string' ? description.trim() : undefined,
       parentId:
         parentId === undefined
           ? undefined
