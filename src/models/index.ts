@@ -4,6 +4,7 @@ import ColumnModel from './Column';
 import PageContentModel from './PageContent';
 import MediaModel from './Media';
 import SubscriptionModel from './Subscription';
+import SiteSettingModel from './SiteSetting'; // [당일 진단 건수] 설정 키-값 (관계 없음)
 
 // ----------------------------
 // 관계 설정 (Associations)
@@ -60,4 +61,5 @@ export {
   PageContentModel,
   MediaModel,
   SubscriptionModel,
+  SiteSettingModel,
 };
