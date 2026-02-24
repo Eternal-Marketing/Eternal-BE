@@ -291,6 +291,16 @@ const options: swaggerJsdoc.Options = {
         name: 'Health',
         description: '서버 상태 확인 API',
       },
+      // [당일 진단 건수] 공개 표시용
+      {
+        name: 'Stats',
+        description: '통계/표시용 API (당일 진단 건수 등)',
+      },
+      // [당일 진단 건수] 어드민 최대값 설정
+      {
+        name: 'Settings',
+        description: '설정 API (어드민, 진단 표시 최대값 등)',
+      },
     ],
   },
   apis: ['./src/routes/*.ts', './src/index.ts'], // 파일 경로

@@ -12,6 +12,8 @@ import { categoryRouter } from './routes/categories';
 import { pageContentRouter } from './routes/pageContent';
 import { mediaRouter } from './routes/media';
 import { subscriptionRouter } from './routes/subscriptions';
+import { statsRouter } from './routes/stats';
+import { settingsRouter } from './routes/settings';
 import { connectDB } from './db';
 import './models'; // Initialize models and associations
 import ENV from './common/constants/ENV';
@@ -56,6 +58,8 @@ app.use('/api/categories', categoryRouter);
 app.use('/api/page-content', pageContentRouter);
 app.use('/api/media', mediaRouter);
 app.use('/api/subscriptions', subscriptionRouter);
+app.use('/api/stats', statsRouter); // [당일 진단 건수] GET /daily-diagnostic-count (공개)
+app.use('/api/settings', settingsRouter); // [당일 진단 건수] GET/PATCH /daily-diagnostic-max (어드민)
 
 // Root route
 app.get('/', (_req, res) => {
@@ -71,6 +75,8 @@ app.get('/', (_req, res) => {
       pageContent: '/api/page-content',
       media: '/api/media',
       subscriptions: '/api/subscriptions',
+      stats: '/api/stats',
+      settings: '/api/settings',
     },
   });
 });
