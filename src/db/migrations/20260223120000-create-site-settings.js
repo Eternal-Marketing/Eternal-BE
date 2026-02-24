@@ -37,9 +37,9 @@ module.exports = {
     });
 
     // 초기데이터
-
+    // 주의: key 는 MySQL 예약어라 컬럼명을 반드시 백틱(`)으로 감싸야 함
     await queryInterface.sequelize.query(
-      "INSERT INTO site_settings (id, key, value, updated_at) VALUES (UUID(), 'daily_diagnostic_max', '20', NOW())"
+      "INSERT INTO site_settings (id, `key`, value, updated_at) VALUES (UUID(), 'daily_diagnostic_max', '20', NOW())"
     );
   },
 
