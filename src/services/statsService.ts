@@ -1,6 +1,7 @@
 /**
  * [당일 진단 건수 표시] 표시값 계산 + 설정 조회/변경
- * - 검증: 자정(00:00 UTC)이면 0, 하루가 지날수록 max 근처까지 증가. 같은 분이면 같은 값(시드 고정).
+ * - 검증: 자정(00:00 UTC)이면 0, 하루가 지날수록 max 근처까지 증가.
+ * - 랜덤 시드는 2시간 단위로만 변함(같은 2시간 블록 안에서는 동일 값).
  */
 import { SiteSettingRepo } from '../repositories/siteSettingRepository';
 
@@ -23,14 +24,19 @@ function getTodayProgressUTC(): number {
   return Math.min(1, elapsed / dayMs);
 }
 
-function getMinuteSeed(): number {
+/**
+ * 2시간 단위 랜덤 시드
+ * - 같은 날짜의 같은 2시간 블록(예: 00~01시, 02~03시) 안에서는 항상 같은 값
+ * - 블록이 바뀔 때마다 0 또는 1로 바뀔 수 있음
+ */
+function getTwoHourSeed(): number {
   const now = new Date();
+  const twoHourBlock = Math.floor(now.getUTCHours() / 2); // 0~11
   const n =
     now.getUTCFullYear() * 372 +
     (now.getUTCMonth() + 1) * 31 +
-    now.getUTCDate() +
-    now.getUTCHours() * 60 +
-    now.getUTCMinutes();
+    now.getUTCDate() * 12 +
+    twoHourBlock;
   return n % 2;
 }
 
@@ -42,7 +48,7 @@ export class StatsService {
       return { count: 0 };
     }
     const base = Math.floor(progress * (max + 0.5)); // 진행률에 따라 0~max 근처
-    const add = getMinuteSeed(); // 0 또는 1
+    const add = getTwoHourSeed(); // 0 또는 1, 2시간 단위로만 변경
     const count = Math.min(max, base + add);
     return { count };
   }
