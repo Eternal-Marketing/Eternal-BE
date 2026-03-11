@@ -5,6 +5,7 @@ import ENV from '../common/constants/ENV';
 export interface AppError extends Error {
   statusCode?: number;
   status?: string;
+  details?: unknown;
 }
 
 /**
@@ -41,6 +42,7 @@ export const errorHandler = (
   res.status(statusCode).json({
     status,
     message: err.message || 'Internal server error',
+    ...(err.details !== undefined && { details: err.details }),
     ...(ENV.NodeEnv === 'development' && { stack: err.stack }),
     ...(process.env.DEBUG === 'true' && {
       path: req.originalUrl,

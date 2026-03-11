@@ -288,6 +288,10 @@ const options: swaggerJsdoc.Options = {
         description: '미디어 파일 관리 API',
       },
       {
+        name: 'Subscriptions',
+        description: '상담 신청(구독) 관리 API',
+      },
+      {
         name: 'Health',
         description: '서버 상태 확인 API',
       },
@@ -300,6 +304,10 @@ const options: swaggerJsdoc.Options = {
       {
         name: 'Settings',
         description: '설정 API (어드민, 진단 표시 최대값 등)',
+      },
+      {
+        name: 'Notifications',
+        description: '알림/SMS/카카오톡 발송 관련 API',
       },
     ],
   },
