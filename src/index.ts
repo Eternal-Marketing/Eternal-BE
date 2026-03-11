@@ -12,6 +12,7 @@ import { categoryRouter } from './routes/categories';
 import { pageContentRouter } from './routes/pageContent';
 import { mediaRouter } from './routes/media';
 import { subscriptionRouter } from './routes/subscriptions';
+import { notificationRouter } from './routes/notifications';
 import { statsRouter } from './routes/stats';
 import { settingsRouter } from './routes/settings';
 import { connectDB } from './db';
@@ -60,7 +61,19 @@ app.use('/api/media', mediaRouter);
 app.use('/api/subscriptions', subscriptionRouter);
 app.use('/api/stats', statsRouter); // [당일 진단 건수] GET /daily-diagnostic-count (공개)
 app.use('/api/settings', settingsRouter); // [당일 진단 건수] GET/PATCH /daily-diagnostic-max (어드민)
+app.use('/api/notifications', notificationRouter); // [Solapi] 테스트용 알림 API
 
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     tags: [Health]
+ *     summary: API 루트 정보 조회
+ *     description: 백엔드 기본 정보와 주요 엔드포인트 목록을 반환합니다.
+ *     responses:
+ *       200:
+ *         description: 성공
+ */
 // Root route
 app.get('/', (_req, res) => {
   res.json({
@@ -77,9 +90,32 @@ app.get('/', (_req, res) => {
       subscriptions: '/api/subscriptions',
       stats: '/api/stats',
       settings: '/api/settings',
+      notifications: '/api/notifications',
     },
   });
 });
+
+/**
+ * @swagger
+ * /uploads/{fileName}:
+ *   get:
+ *     tags: [Media]
+ *     summary: 업로드된 정적 파일 조회
+ *     description: |
+ *       업로드된 파일을 정적으로 조회합니다.
+ *       기본 경로는 /uploads 이며, 서버 환경변수(UPLOAD_DIR)에 따라 달라질 수 있습니다.
+ *     parameters:
+ *       - in: path
+ *         name: fileName
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: 성공
+ *       404:
+ *         description: 파일 없음
+ */
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

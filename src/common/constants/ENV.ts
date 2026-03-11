@@ -25,6 +25,11 @@ const ENV = {
   // Subscription
   InitialSubscriberCount: Number(process.env.INITIAL_SUBSCRIBER_COUNT || '0'),
 
+  // Solapi (SMS / Kakao 알림)
+  SolapiApiKey: process.env.SOLAPI_API_KEY || '',
+  SolapiApiSecret: process.env.SOLAPI_API_SECRET || '',
+  SolapiSenderNumber: process.env.SOLAPI_SENDER_NUMBER || '',
+
   // Debug
   Debug: process.env.DEBUG === 'true',
 };
