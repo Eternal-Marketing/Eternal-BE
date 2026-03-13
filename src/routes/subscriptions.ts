@@ -12,6 +12,8 @@ const router = Router();
  *     summary: 상담신청 생성 (공개 API)
  *     description: |
  *       사용자가 상담신청을 제출합니다. 자동으로 가입자로 등록됩니다.
+ *       저장 성공 후 서버가 Solapi로 내부 알림 SMS를 자동 발송합니다.
+ *       SMS 발송 실패 시 요청은 실패로 처리되며 데이터는 저장되지 않습니다.
  *       요청 body는 camelCase(SubscriptionFormPayload)를 사용합니다.
  *     requestBody:
  *       required: true
@@ -88,6 +90,8 @@ const router = Router();
  *         description: 상담신청 성공
  *       400:
  *         description: 잘못된 요청 (name/phone/region 누락, 이넘 오류, concerns 2개 초과 등)
+ *       500:
+ *         description: 서버 설정 오류 또는 내부 알림 SMS 발송 실패
  */
 router.post('/', subscriptionController.createSubscription);
 

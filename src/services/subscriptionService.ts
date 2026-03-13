@@ -3,6 +3,8 @@ import { SubscriptionStatus } from '../models/Subscription';
 import type { SubscriptionFormPayload } from '../common/types/subscription';
 import { AppError } from '../middleware/errorHandler';
 import ENV from '../common/constants/ENV';
+import { sequelize } from '../db';
+import { NotificationService } from './notificationService';
 import Logger from '../utils/logger';
 
 /**
@@ -19,30 +21,54 @@ export class SubscriptionService {
   async createSubscription(data: SubscriptionFormPayload) {
     Logger.debug('상담신청 생성 시작', { email: data.email, name: data.name });
 
-    const subscription = await SubscriptionRepo.create({
-      name: data.name,
-      email: data.email ?? undefined,
-      phone: data.phone ?? undefined,
-      message: data.message ?? undefined,
-      companyName: data.companyName ?? undefined,
-      industry: data.industry ?? undefined,
-      industryOther: data.industryOther ?? undefined,
-      concerns: data.concerns ?? undefined,
-      marketingStatus: data.marketingStatus ?? undefined,
-      interestedChannels: data.interestedChannels ?? undefined,
-      channelsOther: data.channelsOther ?? undefined,
-      region: data.region ?? undefined,
-      contactTimeSlots: data.contactTimeSlots ?? undefined,
-      contactTimeOther: data.contactTimeOther ?? undefined,
-      status: SubscriptionStatus.PENDING,
-    });
+    const tx = await sequelize.transaction();
+    const notificationService = new NotificationService();
 
-    Logger.info('상담신청 생성 완료', {
-      id: subscription.id,
-      email: subscription.email,
-    });
+    try {
+      const subscription = await SubscriptionRepo.create(
+        {
+          name: data.name,
+          email: data.email ?? undefined,
+          phone: data.phone ?? undefined,
+          message: data.message ?? undefined,
+          companyName: data.companyName ?? undefined,
+          industry: data.industry ?? undefined,
+          industryOther: data.industryOther ?? undefined,
+          concerns: data.concerns ?? undefined,
+          marketingStatus: data.marketingStatus ?? undefined,
+          interestedChannels: data.interestedChannels ?? undefined,
+          channelsOther: data.channelsOther ?? undefined,
+          region: data.region ?? undefined,
+          contactTimeSlots: data.contactTimeSlots ?? undefined,
+          contactTimeOther: data.contactTimeOther ?? undefined,
+          status: SubscriptionStatus.PENDING,
+        },
+        { transaction: tx }
+      );
 
-    return subscription;
+      await notificationService.sendConsultationRequestSms({
+        id: subscription.id,
+        name: subscription.name,
+        phone: subscription.phone,
+        region: subscription.region,
+        companyName: subscription.companyName,
+        contactTimeSlots: subscription.contactTimeSlots,
+        contactTimeOther: subscription.contactTimeOther,
+      });
+
+      await tx.commit();
+
+      Logger.info('상담신청 생성 완료', {
+        id: subscription.id,
+        email: subscription.email,
+      });
+
+      return subscription;
+    } catch (error) {
+      await tx.rollback();
+      Logger.error('상담신청 생성 실패 - 트랜잭션 롤백', error);
+      throw error;
+    }
   }
 
   /**

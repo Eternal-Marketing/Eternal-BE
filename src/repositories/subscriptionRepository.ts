@@ -3,6 +3,7 @@ import SubscriptionModel, {
   SubscriptionStatus,
   SubscriptionAttributes,
 } from '../models/Subscription';
+import type { Transaction } from 'sequelize';
 
 /**
  * Sequelize 모델을 타입 안전하게 사용하기 위한 래퍼
@@ -14,8 +15,13 @@ export const SubscriptionRepo = {
   /**
    * 상담신청 생성
    */
-  async create(data: SubscriptionCreationAttributes) {
-    const subscription = await Subscription.create(data);
+  async create(
+    data: SubscriptionCreationAttributes,
+    options?: { transaction?: Transaction }
+  ) {
+    const subscription = await Subscription.create(data, {
+      transaction: options?.transaction,
+    });
     return subscription.get();
   },
 
