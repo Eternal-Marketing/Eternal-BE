@@ -29,6 +29,8 @@ const ENV = {
   SolapiApiKey: process.env.SOLAPI_API_KEY || '',
   SolapiApiSecret: process.env.SOLAPI_API_SECRET || '',
   SolapiSenderNumber: process.env.SOLAPI_SENDER_NUMBER || '',
+  SolapiConsultationReceiverNumber:
+    process.env.SOLAPI_CONSULTATION_RECEIVER_NUMBER || '',
 
   // Debug
   Debug: process.env.DEBUG === 'true',
