@@ -4,6 +4,16 @@ import HttpStatusCodes from '../common/constants/HttpStatusCodes';
 import { validateUpdateDailyDiagnosticMaxBody } from '../validators/statsValidator';
 import type { AuthRequest } from '../middleware/auth';
 
+function setNoStore(res: Response) {
+  res.setHeader(
+    'Cache-Control',
+    'no-store, no-cache, must-revalidate, proxy-revalidate'
+  );
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+}
+
 export async function getDailyDiagnosticCount(
   _req: Request,
   res: Response,
@@ -27,6 +37,7 @@ export async function getDailyDiagnosticMax(
   next: NextFunction
 ) {
   try {
+    setNoStore(res);
     const statsService = new StatsService();
     const data = await statsService.getDailyDiagnosticMax();
     res.status(HttpStatusCodes.OK).json({
@@ -44,6 +55,7 @@ export async function updateDailyDiagnosticMax(
   next: NextFunction
 ) {
   try {
+    setNoStore(res);
     if (!req.admin) {
       res.status(HttpStatusCodes.UNAUTHORIZED).json({
         status: 'error',
