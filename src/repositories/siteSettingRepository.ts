@@ -6,18 +6,19 @@ const KEY_DAILY_DIAGNOSTIC_MAX = 'daily_diagnostic_max';
 
 export const SiteSettingRepo = {
   async getValue(key: string): Promise<string | null> {
-    const row = await SiteSetting.findOne({ where: { key } });
+    const row = await SiteSetting.findOne({
+      where: { key },
+      useMaster: true,
+    });
     return row ? row.value : null;
   },
 
   async setValue(key: string, value: string): Promise<void> {
-    const [row] = await SiteSetting.findOrCreate({
-      where: { key },
-      defaults: { key, value, updatedAt: new Date() },
+    await SiteSetting.upsert({
+      key,
+      value,
+      updatedAt: new Date(),
     });
-    if (row.value !== value) {
-      await row.update({ value, updatedAt: new Date() });
-    }
   },
 
   async getDailyDiagnosticMax(): Promise<number> {
@@ -30,6 +31,8 @@ export const SiteSettingRepo = {
   async setDailyDiagnosticMax(max: number): Promise<number> {
     const value = String(Math.max(0, Math.min(999, Math.floor(max))));
     await this.setValue(KEY_DAILY_DIAGNOSTIC_MAX, value);
-    return parseInt(value, 10);
+    // Read after write from the same durable store.
+    const persisted = await this.getDailyDiagnosticMax();
+    return persisted;
   },
 };
