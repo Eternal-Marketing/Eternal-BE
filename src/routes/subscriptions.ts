@@ -21,7 +21,8 @@ const router = Router();
  *             type: object
  *             required:
  *               - name
- *               - email
+ *               - phone
+ *               - region
  *             properties:
  *               name:
  *                 type: string
@@ -30,7 +31,7 @@ const router = Router();
  *               email:
  *                 type: string
  *                 format: email
- *                 description: 이메일
+ *                 description: 이메일 (선택)
  *                 example: hong@example.com
  *               phone:
  *                 type: string
@@ -86,7 +87,7 @@ const router = Router();
  *       201:
  *         description: 상담신청 성공
  *       400:
- *         description: 잘못된 요청 (필수값 누락, 이넘 오류, concerns 2개 초과 등)
+ *         description: 잘못된 요청 (name/phone/region 누락, 이넘 오류, concerns 2개 초과 등)
  */
 router.post('/', subscriptionController.createSubscription);
 

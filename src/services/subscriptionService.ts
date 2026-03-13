@@ -21,7 +21,7 @@ export class SubscriptionService {
 
     const subscription = await SubscriptionRepo.create({
       name: data.name,
-      email: data.email,
+      email: data.email ?? undefined,
       phone: data.phone ?? undefined,
       message: data.message ?? undefined,
       companyName: data.companyName ?? undefined,

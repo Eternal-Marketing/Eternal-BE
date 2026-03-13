@@ -15,7 +15,7 @@ export type ValidationResult =
 function normalizeBody(body: Record<string, unknown>) {
   return {
     name: body.name as string,
-    email: body.email as string,
+    email: body.email as string | undefined,
     phone: body.phone as string | undefined,
     companyName: body.companyName ?? body.company_name,
     industry: body.industry as string | undefined,
