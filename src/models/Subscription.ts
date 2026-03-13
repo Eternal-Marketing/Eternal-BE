@@ -21,7 +21,7 @@ export enum SubscriptionStatus {
 export interface SubscriptionAttributes {
   id: string;
   name: string;
-  email: string;
+  email?: string | null;
   phone?: string | null;
   message?: string | null;
   status: SubscriptionStatus;
@@ -42,6 +42,7 @@ export interface SubscriptionAttributes {
 export type SubscriptionCreationAttributes = Optional<
   SubscriptionAttributes,
   | 'id'
+  | 'email'
   | 'status'
   | 'phone'
   | 'message'
@@ -65,7 +66,7 @@ export class SubscriptionModel
 {
   public id!: string;
   public name!: string;
-  public email!: string;
+  public email!: string | null;
   public phone!: string | null;
   public message!: string | null;
   public status!: SubscriptionStatus;
@@ -100,11 +101,11 @@ SubscriptionModel.init(
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     phone: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     message: {
       type: DataTypes.TEXT,
@@ -150,7 +151,7 @@ SubscriptionModel.init(
     },
     region: {
       type: DataTypes.STRING(255),
-      allowNull: true,
+      allowNull: false,
     },
     contactTimeSlots: {
       type: DataTypes.JSON,

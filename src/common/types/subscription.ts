@@ -51,7 +51,7 @@ export interface SubscriptionFormPayload {
   /** 담당자명 */
   name: string;
   /** 이메일 */
-  email: string;
+  email?: string;
   /** 연락처 */
   phone?: string;
   /** 업체명 */

@@ -9,7 +9,7 @@ import {
 
 /**
  * POST /api/subscriptions
- * Body: SubscriptionFormPayload (name, email 필수 / 나머지 선택)
+ * Body: SubscriptionFormPayload (name, phone, region 필수 / email 포함 나머지 선택)
  */
 export async function createSubscription(
   req: Request,

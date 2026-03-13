@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { sendTestSms } from '../controllers/notificationController';
-import { authenticate } from '../middleware/auth';
 
 const router = Router();
 
@@ -9,12 +8,10 @@ const router = Router();
  * /api/notifications/sms/test:
  *   post:
  *     tags: [Notifications]
- *     summary: 테스트용 SMS 발송 (어드민)
+ *     summary: 테스트용 SMS 발송
  *     description: |
  *       Solapi 연동 확인을 위한 테스트용 SMS 발송 API입니다.
- *       어드민 화면에서 \"알림 테스트\" 버튼 등에 연결하는 용도로 사용합니다.
- *     security:
- *       - bearerAuth: []
+ *       프론트엔드에서 일반 사용자 액션 후 알림을 보내는 용도로 사용할 수 있습니다.
  *     requestBody:
  *       required: true
  *       content:
@@ -53,9 +50,7 @@ const router = Router();
  *                   type: object
  *       400:
  *         description: 잘못된 요청 (필수 필드 누락, 발신번호 불일치 등)
- *       401:
- *         description: 인증 필요 (어드민 JWT)
  */
-router.post('/sms/test', authenticate, sendTestSms);
+router.post('/sms/test', sendTestSms);
 
 export { router as notificationRouter };

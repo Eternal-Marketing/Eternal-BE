@@ -15,7 +15,7 @@ export type ValidationResult =
 function normalizeBody(body: Record<string, unknown>) {
   return {
     name: body.name as string,
-    email: body.email as string,
+    email: body.email as string | undefined,
     phone: body.phone as string | undefined,
     companyName: body.companyName ?? body.company_name,
     industry: body.industry as string | undefined,
@@ -57,8 +57,8 @@ export function validateSubscriptionForm(body: unknown): ValidationResult {
       : {}
   );
 
-  if (!raw.name?.trim() || !raw.email?.trim()) {
-    return { success: false, message: 'Name and email are required' };
+  if (!raw.name?.trim() || !raw.phone?.trim() || !raw.region?.trim()) {
+    return { success: false, message: 'Name, phone, and region are required' };
   }
 
   if (
@@ -102,8 +102,8 @@ export function validateSubscriptionForm(body: unknown): ValidationResult {
 
   const payload: SubscriptionFormPayload = {
     name: raw.name.trim(),
-    email: raw.email.trim(),
-    phone: raw.phone?.trim(),
+    email: raw.email?.trim() || undefined,
+    phone: raw.phone.trim(),
     companyName:
       typeof raw.companyName === 'string' ? raw.companyName.trim() : undefined,
     industry: raw.industry as SubscriptionIndustry | undefined,
@@ -123,7 +123,7 @@ export function validateSubscriptionForm(body: unknown): ValidationResult {
         ? raw.channelsOther.trim()
         : undefined,
     message: typeof raw.message === 'string' ? raw.message.trim() : undefined,
-    region: typeof raw.region === 'string' ? raw.region.trim() : undefined,
+    region: raw.region.trim(),
     contactTimeSlots: raw.contactTimeSlots as
       | SubscriptionContactTimeSlot[]
       | undefined,
