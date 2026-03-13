@@ -10,7 +10,12 @@ export const SiteSettingRepo = {
       where: { key },
       useMaster: true,
     });
-    return row ? row.value : null;
+    if (!row) return null;
+
+    // Avoid direct property access (`row.value`) because class field emission can
+    // shadow Sequelize attribute getters at runtime.
+    const value = row.getDataValue('value');
+    return typeof value === 'string' ? value : null;
   },
 
   async setValue(key: string, value: string): Promise<void> {
